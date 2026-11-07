@@ -35,7 +35,7 @@ jobs:
         run: |
           npm install -g cordova@12.0.0
           cordova create app com.molyholy.stockmarketsim "Stock Market Simulator"
-          sed -i 's|</widget>|<preference name="Orientation" value="portrait" /><preference name="KeepRunning" value="true" /></widget>|' app/config.xml
+          sed -i 's|</widget>|<preference name="Orientation" value="portrait" /><preference name="KeepRunning" value="true" /><preference name="loadUrlTimeoutValue" value="60000" /></widget>|' app/config.xml
 
       - name: Add the game page
         run: |
@@ -44,7 +44,8 @@ jobs:
             printf '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
             printf '<style>[hidden]{display:none!important}html,body{margin:0}</style>'
             printf '<script src="cordova.js"></script>'
-            cat index.html
+            # drop the online font link: it blocks page load (Cordova times out after 20s) on Wi-Fi with no internet; page falls back to system fonts
+            grep -v 'fonts.googleapis.com' index.html
             printf '</html>'
           } > app/www/index.html
 
