@@ -621,6 +621,9 @@ body{overflow-x:clip;max-width:100%;overscroll-behavior-x:none;touch-action:pan-
 .plist li{padding-block:calc(9px*var(--k))}
 .roomcode{margin-top:calc(6px*var(--k));font-size:calc(26px*var(--k))}
 .rulesline{margin-top:calc(10px*var(--k))}
+#menu .mdie{margin-top:auto}
+#menu .mbtns{margin-bottom:auto}
+#menu .mfoot{margin-top:0}
 /* the server list takes the space left on the screen and scrolls inside itself, so the page does not move */
 #mpjoin>.wrap{display:flex;flex-direction:column;height:100%}
 #mpjoin .back{align-self:flex-start}
@@ -645,6 +648,53 @@ h1{font-size:calc(28px*var(--k))}
 .em{width:calc(34px*var(--k));height:calc(34px*var(--k))}
 .btn{min-height:calc(38px*var(--k))}
 .dock .wrap{padding-block:calc(8px*var(--k))}
+
+/* ===== polish layer: depth, the finish, tactile buttons ===== */
+#amb{position:fixed;left:0;right:0;bottom:0;height:52%;z-index:-1;overflow:hidden;pointer-events:none;
+  -webkit-mask-image:linear-gradient(transparent,#000 75%);mask-image:linear-gradient(transparent,#000 75%)}
+#amb svg{position:absolute;left:0;bottom:0;width:200%;height:100%;animation:ambdrift 140s linear infinite;will-change:transform}
+#amb .u{fill:var(--up);stroke:var(--up);opacity:.1}
+#amb .d{fill:var(--down);stroke:var(--down);opacity:.09}
+#amb line{stroke-width:1.2;vector-effect:non-scaling-stroke}
+@keyframes ambdrift{to{transform:translate3d(-50%,0,0)}}
+html::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(120% 70% at 50% -10%,color-mix(in srgb,var(--accent) 9%,transparent),transparent 60%),radial-gradient(90% 60% at 50% 120%,rgba(0,0,0,.35),transparent 70%)}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:90}
+:where(.mbtn,.go,.sgo,.cbtn,.game,.btn){position:relative;overflow:hidden}
+.rip{position:absolute;border-radius:50%;background:currentColor;opacity:.2;transform:scale(0);animation:rip .6s ease-out forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+:where(button,[role=button],label,select,input){touch-action:manipulation}
+:where(h1,h2,.sh,.mtag,.sp,.mine){text-wrap:balance}
+:where(button,a,input,select,textarea,[tabindex]):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* podium */
+.pod{display:flex;align-items:flex-end;justify-content:center;gap:calc(8px*var(--k));padding:calc(26px*var(--k)) 2px 0;margin-top:calc(6px*var(--k))}
+.pcol{flex:1 1 0;max-width:132px;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+.pcol .pav2{position:relative;display:block;width:calc(46px*var(--k));height:calc(46px*var(--k));animation:pavin .55s cubic-bezier(.2,1.5,.4,1) both;animation-delay:calc(var(--d) + .45s)}
+.pcol.p1 .pav2{width:calc(60px*var(--k));height:calc(60px*var(--k))}
+.pcol .pav2 svg:not(.crown){width:100%;height:100%;display:block;border-radius:50%}
+.pcol.p1 .pav2 svg:not(.crown){box-shadow:0 0 0 3px #F2B53A,0 0 22px -2px rgba(242,181,58,.8)}
+.crown{position:absolute;left:50%;top:-20px;width:30px;height:21px;margin-left:-15px;animation:crowndrop .5s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--d) + .9s)}
+.pn{max-width:100%;font:800 calc(18px*var(--k))/1.05 var(--f-display);letter-spacing:.03em;text-transform:uppercase;overflow-wrap:anywhere;animation:fadein .4s ease-out both;animation-delay:calc(var(--d) + .5s)}
+.pcol.me .pn{color:var(--accent)}
+.pnw{font:600 calc(14px*var(--k)) var(--f-mono);font-variant-numeric:tabular-nums;animation:fadein .4s ease-out both;animation-delay:calc(var(--d) + .55s)}
+.pcol small{font:500 11px var(--f-mono);font-variant-numeric:tabular-nums;animation:fadein .4s ease-out both;animation-delay:calc(var(--d) + .6s)}
+.pbar{width:100%;display:grid;place-items:start center;padding-top:calc(8px*var(--k));border-radius:12px 12px 0 0;font:800 calc(28px*var(--k))/1 var(--f-display);
+  background:linear-gradient(180deg,var(--c1),var(--c2));color:var(--cink);box-shadow:inset 0 2px 0 rgba(255,255,255,.4);transform-origin:bottom;animation:podrise .7s cubic-bezier(.2,1.15,.3,1) both;animation-delay:var(--d)}
+.p1{--c1:#FFE08A;--c2:#C98F1E;--cink:#3A2A05}.p2{--c1:#F1F3F2;--c2:#8F9993;--cink:#26302B}.p3{--c1:#F0C09A;--c2:#A8672F;--cink:#35200E}
+.p1 .pbar{height:calc(112px*var(--k))}.p2 .pbar{height:calc(82px*var(--k))}.p3 .pbar{height:calc(60px*var(--k))}
+.pod.still *{animation:none!important}
+.mine{margin:calc(14px*var(--k)) 0 0;font-size:calc(15px*var(--k));text-align:center}
+.mine b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lb.rest{margin-top:calc(12px*var(--k))}
+.rtitle{margin:6px 0 0;font:800 calc(30px*var(--k))/1 var(--f-display);letter-spacing:.04em;text-transform:uppercase;color:var(--accent);animation:crowndrop .6s cubic-bezier(.3,1.5,.5,1) .9s both}
+@keyframes podrise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes pavin{from{opacity:0;transform:translateY(16px) scale(.5)}to{opacity:1;transform:none}}
+@keyframes crowndrop{from{opacity:0;transform:translateY(-14px) scale(.6)}to{opacity:1;transform:none}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+/* lobby */
+.plist li.rdy .pav{border-radius:50%;box-shadow:0 0 0 2px var(--up),0 0 14px -2px var(--up)}
+.plist li .pav{transition:box-shadow .3s}
+.plist li.gone{opacity:.5}
+@media (prefers-reduced-motion:reduce){#amb svg,.pbar,.pav2,.pn,.pnw,.pcol small,.crown,.rtitle,.rip{animation:none!important}}
 </style>
 <script>
 /* scale factor from the real screen: works for any phone shape. The keyboard shrinks the window but never the scale. */
@@ -667,7 +717,7 @@ h1{font-size:calc(28px*var(--k))}
   <div class="wrap">
     <div class="mdie" id="mdie" aria-hidden="true"></div>
     <h1 class="mtitle"><span class="w">Stock</span><br><span class="w">Market</span><br><span class="w">Simulator</span></h1>
-    <p class="mtag">Buy low, roll the die, sell high. The most cash at the end wins.</p>
+    <p class="mtag">Buy low, roll the die, sell high. The richest player at the end wins.</p>
     <div class="mbtns">
       <button type="button" class="mbtn primary" id="mSingle">Singleplayer</button>
       <button type="button" class="mbtn" id="mMulti">Multiplayer</button>
@@ -921,7 +971,7 @@ h1{font-size:calc(28px*var(--k))}
           <li>Every stock has a hidden personality, calm or wild, trending up or down. It is new every game, so read the charts.</li>
           <li id="howEvents"></li>
           <li>The percent next to each price is measured from your average buy price for that stock, or from the starting price if you do not own it.</li>
-          <li>After the last roll you get a final chance to sell. Shares you still hold are worth nothing, only cash counts.</li>
+          <li>After the last roll you get a final chance to trade. Your score is your net worth: cash plus the shares you still hold at the closing prices.</li>
         </ul>
       </details>
       <button type="button" class="quit" id="quit">Menu</button>
@@ -1025,7 +1075,7 @@ const SECTORS=[
 /* Rules a host can change before a game starts. */
 const DEFAULT_CFG={cash:1000,price:200,companies:6,wild:'auto',every:3,shock:'normal',cashEvt:200,paper:true,news:'steady',rumors:50,mood:'normal',labels:false,evPrice:true,evCash:true,evShare:true};
 const SHOCK={small:[25,50],normal:[50,100],huge:[100,200]};
-const NEWS={quiet:[.75,.25,0],steady:[.45,.5,.05],busy:[.2,.6,.2],frenzy:[0,.5,.5]}; /* chance of 0, 1 or 2 stories after each roll */
+const NEWS={quiet:[.9,.1,0],steady:[.72,.26,.02],busy:[.52,.44,.04],frenzy:[.375,.5,.125]}; /* chance of 0, 1 or 2 stories after each roll: about .1, .3, .5 and .75 stories per roll */
 /* The paper. A story is a tip about one company: it says what may happen and in how many days. Most tips come true, some fizzle out.
    Where the tip came from sets how reliable it is, and each sector has its own stories so the paper never reads the same twice. */
 const NEWS_SRC={
@@ -1236,7 +1286,8 @@ function eventDelta(e){return e.unit==='share'?(e.sign>0?'+':'−')+'1 share':(e
 function finishGame(S){
   const p=S.players[0];
   S.phase='end';
-  S.result={cash:p.cash,gain:p.cash-S.cfg.cash,left:holdingsValue(S,p)};
+  const left=holdingsValue(S,p), nw=p.cash+left; /* the score is net worth: cash plus shares at the closing prices */
+  S.result={cash:p.cash,nw,gain:nw-S.cfg.cash,left};
   return S.result;
 }
 /* Multiplayer, host side: one shared game. Everyone trades at once, then one player rolls. */
@@ -1254,7 +1305,7 @@ function mpRoll(S){
   S.phase='anim';
   return {n,steps,event};
 }
-function mpBoard(S){return S.players.map(p=>({pid:p.pid,name:p.name,cash:p.cash,gain:p.cash-S.cfg.cash,left:holdingsValue(S,p)})).sort((a,b)=>b.cash-a.cash)}
+function mpBoard(S){return S.players.map(p=>{const left=holdingsValue(S,p),nw=p.cash+left;return {pid:p.pid,name:p.name,cash:p.cash,nw,gain:nw-S.cfg.cash,left}}).sort((a,b)=>b.nw-a.nw||b.cash-a.cash)} /* ranked by net worth */
 /* /ENGINE */
 
 /* UI */
@@ -1408,7 +1459,10 @@ const SFX=(()=>{
     kick(t){thud(t,.8);voice(t+.05,200,.2,{type:'sawtooth',vol:.1,lp:900,to:80})},
     join(t){tri(t,523,.08,.16);tri(t+.08,784,.14,.16)},
     leave(t){tri(t,784,.08,.14);tri(t+.08,523,.14,.14)},
-    error(t){voice(t,200,.12,{type:'square',vol:.08,lp:900});voice(t+.13,160,.18,{type:'square',vol:.08,lp:900})}
+    error(t){voice(t,200,.12,{type:'square',vol:.08,lp:900});voice(t+.13,160,.18,{type:'square',vol:.08,lp:900})},
+    reveal(t){thud(t,.45);bell(t+.02,880,.55,{vol:.12,send:.3});bell(t+.1,1319,.7,{vol:.09,send:.4})}, /* a podium step rises */
+    coin(t){bell(t,1976,.22,{vol:.1,send:.3});bell(t+.07,2637,.7,{vol:.12,send:.5})},
+    rise(t){noise(t,.7,{f:400,to:6000,q:.8,vol:.12,a:.1,send:.2})}
   };
   return {
     unlock(){AUD.unlock();MUS.refresh()},
@@ -1509,11 +1563,58 @@ function setDie(v,land){
   cubeTurn(d,f[0]+360*Math.ceil((r[0]-f[0])/360)+k,f[1]+360*Math.ceil((r[1]-f[1])/360)+k,land?650:0);
 }
 $('#mdie').innerHTML=cubeHtml();
+/* Canvas particles: gold coins that flip and bounce, confetti that tumbles. One canvas, one loop that stops when nothing is left to draw. */
+const FX=(()=>{
+  let cv,cx,W=0,H=0,P=[],raf=0,last=0,coin;
+  const COLS=['#E8AA35','#46D894','#FBFAF4','#5BC0EB','#FF7A70','#B48CFF'], R=(a,b)=>a+Math.random()*(b-a);
+  function sprite(){
+    const c=document.createElement('canvas');c.width=c.height=48;const g=c.getContext('2d');
+    const gr=g.createRadialGradient(18,16,3,24,24,22);gr.addColorStop(0,'#FFF3B8');gr.addColorStop(.55,'#F2B53A');gr.addColorStop(1,'#B97C12');
+    g.fillStyle=gr;g.beginPath();g.arc(24,24,22,0,7);g.fill();
+    g.lineWidth=3;g.strokeStyle='rgba(120,70,0,.55)';g.stroke();
+    g.beginPath();g.arc(24,24,15,0,7);g.strokeStyle='rgba(255,246,200,.7)';g.lineWidth=2;g.stroke();
+    g.fillStyle='rgba(120,70,0,.75)';g.font='800 22px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('$',24,25);
+    return c;
+  }
+  function fit(){const d=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=Math.round(W*d);cv.height=Math.round(H*d);cx.setTransform(d,0,0,d,0,0)}
+  function ensure(){
+    if(cv)return true;
+    try{cv=document.createElement('canvas');cv.id='fx';cv.setAttribute('aria-hidden','true');document.body.appendChild(cv);cx=cv.getContext('2d');coin=sprite();fit();addEventListener('resize',fit);return true}
+    catch(e){cv=null;return false}
+  }
+  function add(p){if(P.length<260)P.push(p);if(!raf){last=performance.now();raf=requestAnimationFrame(tick)}}
+  function tick(t){
+    const dt=Math.min(.04,(t-last)/1000);last=t;cx.clearRect(0,0,W,H);
+    for(let i=P.length-1;i>=0;i--){
+      const p=P[i];
+      p.vy+=p.g*dt;p.vx*=1-p.drag*dt;p.vy*=1-p.drag*dt*.6;p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;p.s+=p.vs*dt;p.age+=dt;
+      if(p.coin&&p.y>H-8&&p.vy>0&&p.bn<2){p.y=H-8;p.vy*=-.42;p.vx*=.7;p.bn++}
+      if(p.age>p.life||p.y>H+40||p.x<-60||p.x>W+60){P.splice(i,1);continue}
+      cx.globalAlpha=Math.min(1,(p.life-p.age)/.5);cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);
+      const sy=Math.cos(p.s),sc=Math.abs(sy)<.15?.15:sy; /* the flip: a coin or a scrap of paper turning over */
+      cx.scale(1,sc);
+      if(p.coin)cx.drawImage(coin,-p.z/2,-p.z/2,p.z,p.z);else{cx.fillStyle=p.c;cx.fillRect(-p.w/2,-p.h/2,p.w,p.h)}
+      cx.restore();
+    }
+    cx.globalAlpha=1;
+    if(P.length)raf=requestAnimationFrame(tick);else{raf=0;cx.clearRect(0,0,W,H)}
+  }
+  const conf=(x,y,vx,vy,life,c)=>add({x,y,vx,vy,g:520,drag:.9,r:R(0,6),vr:R(-9,9),s:R(0,6),vs:R(5,14),age:0,life,w:R(6,11),h:R(3,6),c:c||COLS[(Math.random()*COLS.length)|0]});
+  const cn=(x,y,vx,vy,life)=>add({x,y,vx,vy,g:640,drag:.25,r:R(-.4,.4),vr:R(-3,3),s:R(0,6),vs:R(6,12),age:0,life,coin:1,bn:0,z:R(18,28)});
+  return {
+    /* confetti fired up and inwards from both bottom corners */
+    cannon(n){if(!mot()||!ensure())return;n=Math.min(n||60,120);for(let i=0;i<n;i++){const l=i%2===0;conf(l?-6:W+6,H+6,(l?1:-1)*R(120,430),-R(650,1050),R(2.4,3.6))}},
+    /* coins falling from the top, in waves so the screen never fills at once */
+    rain(n){if(!mot()||!ensure())return;n=Math.min(n||20,40);for(let i=0;i<n;i++)setTimeout(()=>cn(R(0,W),R(-80,-10),R(-40,40),R(80,260),R(2.6,3.8)),i*55)},
+    /* a round burst at a point */
+    pop(x,y,n,cols){if(!mot()||!ensure())return;for(let i=0;i<Math.min(n||24,80);i++){const a=R(0,6.283),v=R(120,380);conf(x,y,Math.cos(a)*v,Math.sin(a)*v-120,R(1.1,1.9),cols?cols[i%cols.length]:null)}}
+  };
+})();
 function burst(n,cl){
-  if(reduceMotion())return;
-  const b=$('#burst'),cols=cl||['#E8AA35','#46D894','#FBFAF4','#5BC0EB','#FF7A70'];
-  b.innerHTML=Array.from({length:n},()=>'<i style="left:'+Math.floor(Math.random()*100)+'%;background:'+cols[Math.floor(Math.random()*5)]+';--dx:'+Math.floor((Math.random()-.5)*180)+'px;--r:'+Math.floor(Math.random()*720-360)+'deg;animation-delay:'+(Math.random()*.5).toFixed(2)+'s;animation-duration:'+(1.5+Math.random()*1.3).toFixed(2)+'s"></i>').join('');
-  clearTimeout(burst.t);burst.t=setTimeout(()=>{b.innerHTML=''},3500);
+  if(!mot())return;
+  if(cl){FX.pop(innerWidth/2,innerHeight*.4,n*2,cl);return} /* a bad event: a small red puff, no coins */
+  FX.cannon(Math.round(n*1.6));
+  if(n>=40)FX.rain(Math.round(n/2)); /* only a finished game rains coins */
 }
 const mot=()=>reduceMotion()||settings.speed==='instant'?0:settings.speed==='fast'?0.4:1;
 /* counts a shown number from its old value to the new one; skipped when motion is off */
@@ -1587,7 +1688,7 @@ function renderStatus(){
   shownVal('#stocks',holdingsValue(S,p));
   {const de=$('#day'),o=de.textContent;de.textContent=S.day;if(o!==String(S.day)){de.classList.remove('bump');void de.offsetWidth;de.classList.add('bump')}}
   $('#rollsText').textContent='Rolls '+S.rolls+'/'+S.total;
-  $('#subText').textContent=S.cos.length+' stocks, '+S.total+' rolls, '+money(c.cash)+' to start. The most cash at the end wins.';
+  $('#subText').textContent=S.cos.length+' stocks, '+S.total+' rolls, '+money(c.cash)+' to start. The highest net worth at the end wins.';
   $('#howStart').textContent='Every stock starts at '+money(c.price)+'. Buy and sell as much as your cash allows.';
   const parts=[];
   if(c.evPrice)parts.push('a stock crashes or surges');
@@ -1646,7 +1747,7 @@ function dockInfo(){
   else if(ph==='final'){
     const hv=holdingsValue(S,p);
     t='All '+S.total+' rolls done';
-    s=rolled+(p.cash<0?'You are '+money(-p.cash)+' in debt. Sell shares to pay it off.':hv>0?'You hold '+money(hv)+' in shares. Sell them or lose them.':'Everything is sold.');
+    s=rolled+(p.cash<0?'You are '+money(-p.cash)+' in debt. Sell shares to pay it off.':hv>0?'You hold '+money(hv)+' in shares. They count at today’s prices, so selling is up to you.':'Everything is sold.');
     btn='Finish';
   }
   else {t='Game over';btn='Play again'}
@@ -1669,17 +1770,18 @@ function renderResults(){
   if(MP.active)return renderBoardEnd(el);
   const fresh=el.dataset.d!=='1'; el.dataset.d='1';
   const r=S.result, base=S.cfg.cash, up=r.gain>0, flat=r.gain===0, ratio=r.gain/base;
-  const verdict=r.gain<0?'You finished below your starting cash.':flat?'You finished exactly where you started.':ratio<0.25?'A small profit.':ratio<0.6?'A solid profit.':'A strong profit.';
+  const verdict=r.gain<0?'You finished below your starting money.':flat?'You finished exactly where you started.':ratio<0.25?'A small profit.':ratio<0.6?'A solid profit.':'A strong profit.';
   el.innerHTML='<div class="res'+(fresh?' res-in':'')+'">'+(up?TROPHY:'')
-    +'<span class="lab">'+esc(S.players[0].name)+'’s final cash</span>'
-    +'<p class="big">'+money(r.cash)+'</p>'
+    +'<span class="lab">'+esc(S.players[0].name)+'’s final net worth</span>'
+    +'<p class="big">'+money(r.nw)+'</p>'
     +'<p class="delta '+(up?'t-up':flat?'':'t-down')+'" style="margin-top:0">'+(up?'+':r.gain<0?'−':'')+money(Math.abs(r.gain))+' from '+money(base)+' ('+(up?'+':r.gain<0?'−':'')+Math.abs(Math.round(ratio*100))+'%)</p>'
+    +'<p class="rtitle">'+rankTitle(ratio)+'</p>'
     +'<p>'+verdict+'</p>'
-    +(r.left>0?'<p class="muted">You still held '+money(r.left)+' in shares. They did not count.</p>':'')
+    +(r.left>0?'<p class="muted">'+money(r.cash)+' in cash plus '+money(r.left)+' in shares at the closing prices.</p>':'')
     +'<span class="lab" style="display:block;margin-top:18px">Your rolls</span>'
     +'<div class="chips">'+S.rollsLog.map((n,ci)=>'<span class="chip" style="--i:'+ci+'" role="img" aria-label="Rolled '+n+'">'+Array.from({length:9},(_,k)=>'<i'+(PIPS[n].indexOf(k)>-1?' class="on"':'')+'></i>').join('')+'</span>').join('')+'</div>'
     +'</div>';
-  if(fresh)tweenTo(el.querySelector('.big'),base,r.cash,money,1300);
+  if(fresh)tweenTo(el.querySelector('.big'),base,r.nw,money,1300);
 }
 /* thin net-worth bar for multiplayer: each player's face sits along the track by net worth (cash + shares at today's prices) */
 let barTb={};
@@ -1979,6 +2081,7 @@ function closePopup(){
   if(mot()&&!pp.hidden){pp.classList.add('out');closePopup.t=setTimeout(()=>{pp.hidden=true;pp.classList.remove('out')},210)}else pp.hidden=true;
   const r=popResolve; popResolve=null; if(r)r();
 }
+const rankTitle=r=>r<0?'Bagholder':r<.05?'Sitting tight':r<.25?'Steady hand':r<.6?'Bull runner':r<1.2?'Market mogul':'Legend of the floor';
 function finish(){
   if(S.phase!=='final')return;
   const r=finishGame(S);
@@ -2210,7 +2313,7 @@ function nextRoller(){
   for(let k=1;k<=n;k++){const i=(S.rollerIdx+k)%n,hp=H.players.find(p=>p.pid===S.players[i].pid);if(hp&&hp.connected){S.rollerIdx=i;return}}
 }
 function hostCheck(){
-  if(H.mode==='end'&&H.players.every(p=>p.here||!p.connected)){H.mode='lobby';H.S=null;H.board=null;if(H.sim)H.players=H.players.filter(p=>p.connected);if(H.sim)H.target=Math.min(MAX_PLAYERS,Math.max(H.players.length,3+Math.floor(Math.random()*6)))}
+  if(H.mode==='end'&&H.players.every(p=>p.here||!p.connected)){H.mode='lobby';H.S=null;H.board=null;if(H.sim)H.players=H.players.filter(p=>p.connected);if(H.sim){H.target=simTarget(H.players.length);H.t0=Date.now();H.minLobby=botMs(25000,50000);H.postLeaves=rint(3);H.leaves=0}}
   if(H.mode!=='game')return;
   const S=H.S, live=H.players.filter(p=>p.connected);
   if(S.phase==='roll'&&!live.some(p=>p.pid===S.players[S.rollerIdx].pid))nextRoller();
@@ -2224,7 +2327,6 @@ function hostStart(){
   if(H&&H.offline&&H.mode==='lobby')H.players.forEach(p=>{if(p.here)p.ready=true}); /* offline there is no Ready step */
   if(!H||H.mode!=='lobby'||!H.players.every(p=>p.here&&p.ready))return;
   H.S=mpNewGame(H.players,H.total,H.cfg);H.mode='game';H.board=null;
-  if(H.sim)brBury(MP.code);
   H.players.forEach(p=>{p.ready=false;p.tr=false});
   pushState();
 }
@@ -2240,7 +2342,7 @@ function hostRoll(){
 function hostAdvance(){
   H.pending=null;endRoll(H.S);nextRoller();H.players.forEach(p=>{p.tr=false});pushState();
 }
-/* Humans who stall are moved on: 60s to press Ready (lobby, trading), 10s to roll, 10s to leave the results. Bots and offline games are exempt.
+/* Humans who stall are moved on: 60s to press Ready (lobby, trading), 10s to roll, 20s to leave the results. Bots and offline games are exempt.
    shortcut: waits run on the host's clock from the player's last state change and clients get no countdown, only a note. Upgrade: send the deadline in the snapshot. */
 function hostTimers(){
   if(simBeat())return;
@@ -2250,7 +2352,7 @@ function hostTimers(){
     if(p.bot||!p.connected)return;
     let want=null,lim=60000;
     if(h.mode==='lobby'){if(p.here&&!p.ready)want={t:'lready',on:true}}
-    else if(h.mode==='end'){if(!p.here){want={t:'toLobby'};lim=10000}}
+    else if(h.mode==='end'){if(!p.here){want={t:'toLobby'};lim=20000}}
     else if(h.mode==='game'){
       if((S.phase==='trade'||S.phase==='final')&&!p.tr)want={t:'tready',on:true};
       else if(S.phase==='roll'&&S.players[S.rollerIdx].pid===p.pid){want={t:'roll'};lim=10000}
@@ -2273,7 +2375,7 @@ function dropPlayer(p){
   if(p.conn!==null)Net.close(p.conn);
   if(H.mode==='game'){p.conn=null;p.connected=false;p.tr=false;if(H.pending)H.pending.delete(p.pid)}
   else H.players=H.players.filter(x=>x!==p);
-  if(nx)H.hostPid=nx;
+  if(nx){H.hostPid=nx;if(H.sim&&nx===MP.pid){clearTimeout(H.startPlan);H.startPlan=null}} /* a human host presses Start, so a start the bot host had queued is cancelled */
   if(H.pending&&!H.pending.size)return hostAdvance();
   hostCheck();pushState();
 }
@@ -2373,7 +2475,7 @@ function leaveRoom(to){
   if(H&&H.sim){resetMp();show('mpjoin');return}
   if(H&&H.offline){resetMp();show(typeof to==='string'?to:screen==='game'?'menu':'bots');return}
   if(MP.isHost&&H){
-    const nx=nextHostPid(MP.pid,q=>typeof q.conn==='number'&&q.conn>0&&!q.bot), q=nx&&H.players.find(x=>x.pid===nx);
+    const nx=nextHostPid(MP.pid,q=>typeof q.conn==='number'&&q.conn>0&&!q.bot&&Date.now()-q.seen<12000), q=nx&&H.players.find(x=>x.pid===nx);
     if(q){
       const me=H.players.find(x=>x.pid===MP.pid);
       H.hostPid=nx;
@@ -2417,7 +2519,7 @@ function applySnap(s){
   if(MP.animating){MP.next=s;return}
   MP.snap=s; if(s.S)S=s.S;
   const me=s.players.find(p=>p.pid===MP.pid)||{};
-  if(s.mode==='end'){if(!MP.ended){MP.ended=true;if(!me.here&&s.board[0])SFX.play(s.board[0].pid===MP.pid?'win':'lose')}}else MP.ended=false;
+  if(s.mode==='end'){if(!MP.ended){MP.ended=true;if(!me.here&&s.board[0])SFX.play(s.board[0].pid===MP.pid?'win':'lose',1.45)}}else MP.ended=false;
   const want=s.mode==='game'||(s.mode==='end'&&!me.here)?'game':'lobby';
   {const n=s.players.filter(p=>p.connected).length;if(MP.pc!==undefined&&n!==MP.pc&&screen==='lobby')SFX.play(n>MP.pc?'join':'leave');MP.pc=n}
   if(['lobby','game','mpcreate','mpjoin','bots'].indexOf(screen)>=0&&screen!==want){if(want==='game'&&screen==='lobby')SFX.play('start');show(want)}
@@ -2492,7 +2594,7 @@ function renderLobby(){
   $('#lCount').textContent=s.players.length+'/'+MAX_PLAYERS;
   $('#plist').innerHTML=s.players.map(p=>{
     const st=!p.connected?'Left':!p.here?'Viewing results':p.ready?'Ready':'Not ready';
-    return '<li><span class="pav">'+avatarSvg(p.av|0)+'</span><b>'+esc(p.name)+'</b>'+(p.pid===(s.hostPid||1)&&!s.off?'<span class="tag">HOST</span>':'')+(p.bot&&s.off?'<span class="tag">BOT · '+BOTN[p.bot]+'</span>':'')+(p.pid===MP.pid?'<span class="tag">YOU</span>':'')+'<span class="pst'+(p.ready&&p.here?' ok':'')+'">'+st+'</span>'+kickBtn(p)+'</li>';
+    return '<li class="'+(p.connected&&p.here&&p.ready?'rdy':'')+(p.connected?'':' gone')+'"><span class="pav">'+avatarSvg(p.av|0)+'</span><b>'+esc(p.name)+'</b>'+(p.pid===(s.hostPid||1)&&!s.off?'<span class="tag">HOST</span>':'')+(p.bot&&s.off?'<span class="tag">BOT · '+BOTN[p.bot]+'</span>':'')+(p.pid===MP.pid?'<span class="tag">YOU</span>':'')+'<span class="pst'+(p.ready&&p.here?' ok':'')+'">'+st+'</span>'+kickBtn(p)+'</li>';
   }).join('');
   $('#lRules').textContent=s.total+' rolls · '+money(c.cash)+' to start · '+c.companies+' stocks · '+(eventsOn(c)?'event '+everyText(c.every):'no events')+(cfgIsDefault(c)?'':' · custom rules');
   $('#lLeave').textContent=s.off?'‹ Back':closing()?'‹ Close room':'‹ Leave';
@@ -2512,17 +2614,62 @@ function dockInfoMP(){
   else if(ph==='roll'){t=mine?'Your roll':roller.name+' is rolling';m=mine?'Tap the die. It rolls for you after 10 seconds.':'Everyone waits for the die.';btn=mine?'Roll':null}
   else if(ph==='rolling'){t=anim.title||'Rolling…';m=anim.sub||''}
   else if(ph==='anim'){t='Waiting for everyone…'}
-  else if(ph==='final'){t='All '+S.total+' rolls done';m=rdy+' of '+live.length+' ready. Sell your shares, then press Ready. Auto-ready after 1 minute.';btn=me.tr?'Not ready':'Ready'}
-  else{t='Game over';m=s.off?'':'Back to the lobby in 10 seconds.';btn=s.off?'Play again':'Return to lobby'}
+  else if(ph==='final'){t='All '+S.total+' rolls done';m=rdy+' of '+live.length+' ready. Shares count at today’s prices. Trade if you like, then press Ready. Auto-ready after 1 minute.';btn=me.tr?'Not ready':'Ready'}
+  else{t='Game over';m=s.off?'':'Back to the lobby in 20 seconds.';btn=s.off?'Play again':'Return to lobby'}
   return {t,s:m,btn,canRoll:ph==='roll'&&mine};
 }
 const botOf=pid=>{const m=MP.snap&&MP.snap.players.find(q=>q.pid===pid);return m&&MP.snap.off&&m.bot}; /* only the offline Play with bots game labels its bots */
+const CROWN='<svg class="crown" viewBox="0 0 32 22" aria-hidden="true"><path d="M2 20 L0 4 L9 11 L16 0 L23 11 L32 4 L30 20Z" fill="#F2B53A" stroke="#8A5A0B" stroke-width="1.6" stroke-linejoin="round"/><circle cx="16" cy="13" r="2" fill="#FFF3B8"/></svg>';
+const ordinal=n=>n+(n%100>=11&&n%100<=13?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th'));
 function renderBoardEnd(el){
-  const b=(MP.snap&&MP.snap.board)||[], av=pid=>{const m=MP.snap.players.find(q=>q.pid===pid);return avatarSvg(m?m.av|0:0)};
-  const fresh=el.dataset.d!=='1';
-  if(fresh){el.dataset.d='1';if(b[0]&&b[0].pid===MP.pid)burst(46)}
-  el.innerHTML='<div class="res'+(fresh?' res-in':'')+'"><span class="lab">Leaderboard</span><ol class="lb">'+b.map((r,i)=>'<li style="--i:'+i+'" class="'+(r.pid===MP.pid?'me':'')+'"><span class="rk">'+(i+1)+'</span><span class="pav">'+av(r.pid)+'</span><span><b>'+esc(r.name)+'</b>'+(botOf(r.pid)?'<span class="tag">BOT</span>':'')+(r.left>0?'<small>held '+money(r.left)+' in shares, not counted</small>':'')+'</span><span class="cash">'+money(r.cash)+'</span></li>').join('')+'</ol><p class="muted">Highest cash wins.</p></div>';
+  const snap=MP.snap, b=(snap&&snap.board)||[], av=pid=>{const m=snap.players.find(q=>q.pid===pid);return avatarSvg(m?m.av|0:0)};
+  const base=(snap&&snap.cfg&&snap.cfg.cash)||1000, fresh=el.dataset.d!=='1', still=!mot();
+  const mi=b.findIndex(r=>r.pid===MP.pid), gainTxt=g=>(g<0?'−':'+')+money(Math.abs(Math.round(g)));
+  if(fresh){
+    el.dataset.d='1';
+    [2,1,0].forEach(i=>{if(b[i])SFX.play('reveal',i===0?1.3:i===1?.65:.15)}); /* one rising thud per step */
+    clearTimeout(renderBoardEnd.t);
+    renderBoardEnd.t=setTimeout(()=>{if(mi===0){burst(46)}else if(mi===1||mi===2){FX.pop(innerWidth/2,innerHeight*.45,26)}},1450);
+  }
+  const pod=[1,0,2].filter(i=>b[i]).map(i=>{
+    const r=b[i], d=i===0?1.3:i===1?.65:.15;
+    return '<div class="pcol p'+(i+1)+(r.pid===MP.pid?' me':'')+'" style="--d:'+d+'s"><span class="pav2">'+(i===0?CROWN:'')+av(r.pid)+'</span>'
+      +'<b class="pn">'+esc(r.name)+'</b>'+(botOf(r.pid)?'<span class="tag">BOT</span>':'')
+      +'<span class="pnw" data-nw="'+Math.round(r.nw)+'">'+money(r.nw)+'</span>'
+      +'<small class="'+(r.gain<0?'t-down':'t-up')+'">'+gainTxt(r.gain)+'</small>'
+      +'<span class="pbar"><span>'+(i+1)+'</span></span></div>';
+  }).join('');
+  const rest=b.slice(3).map((r,i)=>'<li style="--i:'+i+'" class="'+(r.pid===MP.pid?'me':'')+'"><span class="rk">'+(i+4)+'</span><span class="pav">'+av(r.pid)+'</span><span><b>'+esc(r.name)+'</b>'+(botOf(r.pid)?'<span class="tag">BOT</span>':'')+'<small>'+gainTxt(r.gain)+(r.left>0?' · '+money(r.left)+' still in shares':'')+'</small></span><span class="cash">'+money(r.nw)+'</span></li>').join('');
+  const me=mi>=0?b[mi]:null;
+  el.innerHTML='<div class="res'+(fresh?' res-in':'')+'"><span class="lab">Final standings</span>'
+    +'<div class="pod'+(still?' still':'')+'" role="img" aria-label="'+b.slice(0,3).map((r,i)=>ordinal(i+1)+' '+esc(r.name)+' '+money(r.nw)).join(', ')+'">'+pod+'</div>'
+    +(me?'<p class="mine">'+(mi===0?'You won with ':'You finished '+ordinal(mi+1)+' with ')+'<b>'+money(me.nw)+'</b> ('+gainTxt(me.gain)+' from '+money(base)+')</p>':'')
+    +(rest?'<ol class="lb rest">'+rest+'</ol>':'')
+    +'<p class="muted">Net worth is cash plus shares at the closing prices.</p></div>';
+  if(fresh&&!still)el.querySelectorAll('.pnw').forEach((n,k)=>{const to=+n.dataset.nw;tweenTo(n,base,to,money,1300+k*150)}); /* the podium numbers count up from the starting money */
 }
+
+/* ---------- ambient skyline: slowly drifting candlesticks behind every screen ---------- */
+(function(){
+  const d=document.createElement('div');d.id='amb';d.setAttribute('aria-hidden','true');
+  const r=mulberry(20260), N=46, STEP=20; let v=50, g='';
+  for(let i=0;i<N;i++){
+    const o=v; v=Math.max(16,Math.min(84,v+(r()-.48)*17)); const up=v>=o, hi=Math.max(o,v)+r()*6, lo=Math.min(o,v)-r()*6, x=i*STEP+4;
+    g+='<g class="'+(up?'u':'d')+'"><line x1="'+(x+5)+'" x2="'+(x+5)+'" y1="'+(100-hi).toFixed(1)+'" y2="'+(100-lo).toFixed(1)+'"/><rect x="'+x+'" width="10" y="'+(100-Math.max(o,v)).toFixed(1)+'" height="'+Math.max(2,Math.abs(v-o)).toFixed(1)+'" rx="1.5"/></g>';
+  }
+  const W=N*STEP;
+  d.innerHTML='<svg viewBox="0 0 '+W*2+' 100" preserveAspectRatio="none"><g>'+g+'</g><g transform="translate('+W+' 0)">'+g+'</g></svg>';
+  document.body.insertBefore(d,document.body.firstChild);
+})();
+/* a soft ripple where a button is pressed */
+document.addEventListener('pointerdown',e=>{
+  if(!mot())return;
+  const b=e.target.closest&&e.target.closest('.mbtn,.go,.sgo,.cbtn,.game,.btn'); if(!b||b.disabled)return;
+  const r=b.getBoundingClientRect(), d=Math.max(r.width,r.height)*1.6, i=document.createElement('i');
+  i.className='rip';i.setAttribute('aria-hidden','true');
+  i.style.cssText='width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left-d/2)+'px;top:'+(e.clientY-r.top-d/2)+'px';
+  b.appendChild(i);setTimeout(()=>i.remove(),650);
+},{passive:true});
 
 /* ---------- events ---------- */
 ['pointerdown','touchend','click'].forEach(ev=>document.addEventListener(ev,()=>SFX.unlock(),{passive:true})); /* touch phones only count touchend/click as a tap for audio */
@@ -2534,7 +2681,10 @@ document.addEventListener('click',e=>{
 });
 $('#popGo').addEventListener('click',closePopup);
 $('#mSingle').addEventListener('click',()=>show('setup'));
-$('#mMulti').addEventListener('click',()=>show('mp'));
+$('#mMulti').addEventListener('click',()=>{
+  if(String(settings.username||'').trim().toLowerCase()==='player')return notice('Add username first','Type your own name in the Username box on the menu, then open Multiplayer.');
+  show('mp');
+});
 $('#mpBack').addEventListener('click',()=>show('menu'));
 $('#mpCreate').addEventListener('click',()=>show('mpcreate'));
 $('#mpJoin').addEventListener('click',()=>show('mpjoin'));
@@ -2549,6 +2699,7 @@ $('#gameList').addEventListener('click',e=>{
     $('#jErr').textContent='';
     if(!now){const w=g.gen===undefined?'closed':brWhy(g,Date.now());return w==='full'?notice('Game is full','That game filled up while you were looking. Try another one.'):notice('Game closed','That game has already started or was closed.')}
     if(now.g)return notice('Game in progress','That game has already started.');
+    if(now.k>=MAX_PLAYERS)return notice('Game is full','That game filled up while you were looking. Try another one.');
     return startPractice(now);
   }
   if(g.p&&!$('#jPw').value){$('#jErr').textContent='Enter the password first.';$('#jPw').focus();return}
@@ -2561,7 +2712,7 @@ function joinCode(){
   const c=$('#jCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(c.length!==CODE_LEN){$('#jErr').textContent='Type the '+CODE_LEN+'-letter room code.';return}
   const br=botNet&&navigator.onLine!==false&&!realList.some(r=>r.c===c)&&brList(Date.now()).find(r=>r.c===c);
-  if(br){$('#jErr').textContent='';if(br.g)return notice('Game in progress','That game has already started.');return startPractice(br)}
+  if(br){$('#jErr').textContent='';if(br.g)return notice('Game in progress','That game has already started.');if(br.k>=MAX_PLAYERS)return notice('Game is full','That game already has '+MAX_PLAYERS+' players. Try another one.');return startPractice(br)}
   tryJoin(c,$('#jPw').value);
 }
 $('#jCodeGo').addEventListener('click',joinCode);
@@ -2793,10 +2944,7 @@ function botMove(bot){
   const S=H.S, sp=S.players.find(x=>x.pid===bot.pid); if(!sp)return;
   const n=S.cos.length, idx=[...Array(n).keys()];
   if(Math.random()<bot.bot.p){
-    if(S.phase==='final'){ /* shares are worth nothing now: sell the biggest holding */
-      const i=idx.sort((a,b)=>sp.shares[b]*S.prices[b]-sp.shares[a]*S.prices[a])[0];
-      if(sp.shares[i]>0)sell(S,sp,i,'max'); return;
-    }
+    if(S.phase==='final')return; /* shares count toward net worth now, so a bot just holds */
     const f=botFuture().ratio;
     const bad=idx.filter(i=>sp.shares[i]>0&&f[i]<.98).sort((a,b)=>f[a]-f[b])[0];
     if(bad!==undefined){sell(S,sp,bad,'max');return}                 /* about to fall: get out */
@@ -2818,11 +2966,11 @@ function botTick(){
   if(S.phase==='trade'||S.phase==='final'){
     h.players.forEach(bot=>{
       if(!bot.bot||!bot.connected||bot.tr||bot.plan)return;
-      if(h.sim&&Math.random()<.016&&h.players.filter(q=>q.connected).length>2){ /* a practice-room bot quits mid-game now and then (the host too: the role passes on), always leaving you and at least one other player */
+      if(h.sim&&Math.random()<.005&&(h.leaves|0)<2&&h.players.filter(q=>q.connected).length>2){ /* a practice-room bot quits mid-game now and then (the host too: the role passes on), always leaving you and at least one other player */
         bot.plan=setTimeout(()=>{
           bot.plan=null;
           if(H!==h||h.mode!=='game'||!bot.connected||h.players.indexOf(bot)<0||h.players.filter(q=>q.connected).length<=2||(h.S.phase!=='trade'&&h.S.phase!=='final'))return;
-          dropPlayer(bot);
+          h.leaves=(h.leaves|0)+1;dropPlayer(bot);
         },T(bot,1500,6000));
         return;
       }
@@ -2933,101 +3081,119 @@ function genRoom(){
     cfg:normCfg(Object.assign({},DEFAULT_CFG,o)),total,cr};
 }
 /* Shared bot rooms. The list is a pure function of the clock: every phone that asks at the same moment gets the same rooms, the same 5-letter
-   codes and the same player counts, with no server involved. The list survives leaving and re-opening the Join screen because nothing is stored:
-   it is simply recomputed for the current time. Each of 30 "lanes" opens a new room every few minutes; a room slowly gains and loses players,
-   and disappears when it reaches 8/8 (the game starts) or when its host closes it. */
-const BR_LANES=30, brCache=new Map(), brLanes=[];
-/* a room whose game has started is gone: remembered on this device (for a day) so it never comes back to the list after you leave it */
-const brGone=(()=>{try{const o=JSON.parse(localStorage.getItem('smsim-gone')||'{}'),n=Date.now();Object.keys(o).forEach(c=>{if(n-o[c]>864e5)delete o[c]});return o}catch(e){return {}}})();
-function brBury(c){if(!c)return;brGone[c]=Date.now();try{localStorage.setItem('smsim-gone',JSON.stringify(brGone))}catch(e){}}
+   codes and the same player counts, with no server involved. Each of 18 "lanes" opens a room that lives for 20 to 80 minutes. A room behaves like a
+   real server: a host opens it with one to four players, people trickle in and now and then leave, the game starts once enough are in and ready
+   (never in the first minute), it shows IN PROGRESS for the length of a match, then everyone returns to the lobby, some leave, and it starts again.
+   A room you have played in stays on the list for an hour after you join it. */
+const BR_LANES=18, brCache=new Map(), brLanes=[], BR_START=[4,4,5,5,5,6,6,7,8];
+const simTarget=n=>Math.min(MAX_PLAYERS,Math.max(n+1,BR_START[rint(BR_START.length)])); /* players a room waits for before it starts */
+const brKeep=(()=>{try{const o=JSON.parse(localStorage.getItem('smsim-keep')||'{}'),n=Date.now();Object.keys(o).forEach(c=>{if(!(o[c]&&o[c].until>n))delete o[c]});return o}catch(e){return {}}})();
+function brKeepAdd(g){if(!g||!g.c||g.lane===undefined)return;brKeep[g.c]={lane:g.lane,gen:g.gen,until:Date.now()+36e5};try{localStorage.setItem('smsim-keep',JSON.stringify(brKeep))}catch(e){}}
 function hash32(a,b){let h=Math.imul((a^0x9e3779b9)>>>0,0x85ebca6b);h=Math.imul(h^(b|0),0xc2b2ae35);h^=h>>>13;h=Math.imul(h,0x85ebca6b);h^=h>>>16;return h>>>0}
 function brLane(l){
-  if(!brLanes[l]){const r=mulberry(hash32(l+101,7));brLanes[l]={P:Math.floor((4+r()*5)*60000),O:Math.floor(r()*1e7)}} /* a new room every 4 to 9 minutes */
+  if(!brLanes[l]){const r=mulberry(hash32(l+101,7));brLanes[l]={P:Math.floor((30+r()*50)*60000),O:Math.floor(r()*1e7)}} /* a room lives 30 to 80 minutes before the lane opens the next one */
   return brLanes[l];
 }
 function brRoom(l,gen){
   const key=l+':'+gen; let R=brCache.get(key); if(R)return R;
   const L=brLane(l), seed=hash32(l+1,gen);
   R=withSeed(seed,()=>{
-    const pub=genRoom(), a=L.P*(.01+Math.random()*.14), end=a+(L.P-a)*(pub.g?.2+Math.random()*.3:.6+Math.random()*.4), none=Math.random()<.08;
-    pub.k=Math.min(pub.k,pub.g?7:6);
-    return {pub,a,end,none,g:pub.g,k0:pub.k,seed:(seed^0x51ed270b)>>>0};
+    const pub=genRoom(), a=L.P*(.01+Math.random()*.12), end=a+(L.P-a)*(.6+Math.random()*.4), none=Math.random()<.08, w=Math.random();
+    pub.k=w<.45?1:w<.75?2:w<.9?3:4; pub.g=false; /* every room opens as a lobby with a few people in it */
+    return {pub,a,end,none,g:false,k0:pub.k,seed:(seed^0x51ed270b)>>>0};
   });
   if(brCache.size>300)brCache.clear();
   brCache.set(key,R); return R;
 }
-/* players in the room u ms after it opened: a seeded random walk, up and down, ending the room at 8/8 */
-function brOcc(R,u){
-  const r=mulberry(R.seed); let t=0,k=R.k0;
-  for(let i=0;i<120;i++){
-    const q=r(); t+=q<.25?800+r()*2200:q<.75?3000+r()*9000:12000+r()*14000;
-    if(t>u)break;
-    if(r()<(k>=6?.74:.58)||k<=1)k++; else k--; /* a nearly full room fills fast */
-    if(k>=MAX_PLAYERS)return {k:MAX_PLAYERS,full:true};
+/* the room u ms after it opened: {k players, g in progress}. A seeded story: arrivals and the odd leaver, a start once enough people are in (and ready),
+   a match with an occasional leaver, then back to the lobby with some people gone. */
+function brState(R,u){
+  const r=mulberry(R.seed), cap=MAX_PLAYERS, pick=()=>BR_START[Math.floor(r()*BR_START.length)], T=R.pub.total, cfg=R.pub.cfg;
+  let t=0,k=R.k0,tl=0,tgt=Math.max(pick(),k+1);
+  for(let i=0;i<600;i++){
+    const q=r(), gap=q<.25?12000+r()*18000:q<.8?30000+r()*60000:90000+r()*150000; /* a player every minute or so, sometimes in quick pairs, sometimes a long wait */
+    t+=gap;tl+=gap;
+    if(t>u)return {k,g:false};
+    if(k<=1||r()<.8)k=Math.min(cap,k+1); else k--;
+    if((k>=tgt&&tl>=110000)||(k>=cap&&tl>=30000)||(tl>600000&&k>=3)){
+      t+=10000+r()*16000; /* everyone readies up */
+      if(t>u)return {k,g:false};
+      const n=k, dur=T*(19000+r()*13000)+45000+(eventsOn(cfg)?T/Math.max(1,cfg.every)*3000:0);
+      const nl=r()<.55?0:r()<.75?1:2, lt=[]; for(let j=0;j<nl;j++)lt.push(r()*dur); lt.sort((x,y)=>x-y);
+      const el=u-t;
+      if(el<dur+20000){let left=0;lt.forEach(x=>{if(x<el&&n-left>3)left++});return {k:n-left,g:true}} /* the results screen counts as the match */
+      t+=dur+20000;
+      const rest=Math.max(Math.min(n,3),n-nl);
+      k=Math.max(1,rest-Math.floor(r()*(rest*.45+1))); /* some leave after the match */
+      tl=0;tgt=Math.max(pick(),k+1);
+    }
   }
-  return {k};
+  return {k,g:false};
 }
-/* why a room from an old list is no longer there: it filled up (its game started) or its host closed it */
-function brWhy(g,now){
-  const L=brLane(g.lane), R=brRoom(g.lane,g.gen), u=Math.min(now-L.O-g.gen*L.P,R.end);
-  if(brGone[g.c]&&!R.g)return 'started';
-  if(!R.g&&!R.none&&u>R.a&&brOcc(R,u-R.a).full)return 'full';
-  return 'closed';
-}
+/* why a room from an old list is no longer there */
+function brWhy(){return 'closed'}
 function brList(now){
-  const out=[];
+  const out=[], seen=new Set();
+  const add=(l,gen,R,u)=>{const L=brLane(l),st=brState(R,u-R.a);seen.add(R.pub.c);out.push(Object.assign({},R.pub,{k:st.k,g:st.g,lane:l,gen,t:L.O+gen*L.P+R.a}))};
   for(let l=0;l<BR_LANES;l++){
     const L=brLane(l), gen=Math.floor((now-L.O)/L.P), R=brRoom(l,gen), u=now-L.O-gen*L.P;
-    if(R.none||u<R.a||u>=R.end||brGone[R.pub.c])continue;
-    let k=R.k0;
-    if(!R.g){const o=brOcc(R,u-R.a);if(o.full)continue;k=o.k} /* full rooms are gone: their game started */
-    out.push(Object.assign({},R.pub,{k,lane:l,gen,t:L.O+gen*L.P+R.a}));
+    if(R.none||u<R.a)continue;
+    if(u>=R.end&&!(brKeep[R.pub.c]&&brKeep[R.pub.c].until>now))continue;
+    add(l,gen,R,u);
   }
+  Object.keys(brKeep).forEach(c=>{ /* a room you played in stays, even when its lane has moved on */
+    const e=brKeep[c]; if(!e||!(e.until>now)||seen.has(c))return;
+    const L=brLane(e.lane), R=brRoom(e.lane,e.gen), u=now-L.O-e.gen*L.P;
+    if(R.none||u<R.a)return;
+    add(e.lane,e.gen,R,u);
+  });
   out.sort((x,y)=>x.t-y.t||x.lane-y.lane);
-  const seen=new Set();
-  out.forEach(r=>{let n=r.n; if(seen.has(n))n=r.n.slice(0,20)+' '+(r.lane+2); seen.add(n); r.n=n});
+  const names=new Set();
+  out.forEach(r=>{let n=r.n; if(names.has(n))n=r.n.slice(0,20)+' '+(r.lane+2); names.add(n); r.n=n});
   return out;
 }
 /* arrivals are uneven: sometimes two in a row, usually a few seconds apart, now and then a long gap */
-function joinGap(){const r=Math.random();return r<.28?botMs(600,2200):r<.8?botMs(2500,9000):botMs(9000,18000)}
+function joinGap(){const r=Math.random();return r<.36?botMs(500,1800):r<.86?botMs(2000,7000):botMs(7000,14000)}
 function simBot(h,pid,name,lv){
   const used=h.players.map(p=>p.av), av=choice([0,1,2,3,4,5,6,7].filter(a=>used.indexOf(a)<0).concat(rint(8)));
   const me=h.players.find(p=>p.pid===MP.pid); if(me&&nameClash(me.name,name))name=freshName(h.players.map(q=>q.name).concat(name));
   return {pid,name,av,conn:null,ready:pid===(h.hostPid||1)||Math.random()<.88,here:true,connected:true,tr:false,bot:{k:lv.k,p:lv.p},pace:2+Math.random()*2,seen:0}; /* most bots are Ready, now and then one is not; the host bot always is */
 }
 function startPractice(g){
+  brKeepAdd(g);
   const nm=g.nm.slice(0,g.k), mine=[settings.username];
   nm.forEach((n,i)=>{if(mine.concat(nm.slice(0,i)).some(t=>nameClash(t,n)))nm[i]=freshName(mine.concat(nm,g.nm.slice(g.k)))}); /* no bot reads like you or like another bot */
   g=Object.assign({},g,{nm});
   const me={pid:g.k+1,name:settings.username,av:avOk(settings.avatar),conn:null,ready:false,here:true,connected:true,tr:false,seen:0};
-  H={name:g.n,pw:'',pub:false,sim:true,hostPid:1,target:Math.min(MAX_PLAYERS,Math.max(g.k+1,g.target|0)),mode:'lobby',players:[me],total:g.total,cfg:g.cfg,S:null,board:null,seq:0,pending:null,nextPid:g.k+2};
+  H={name:g.n,pw:'',pub:false,sim:true,hostPid:1,target:simTarget(g.k),t0:Date.now(),minLobby:botMs(45000,90000),leaves:0,postLeaves:0,mode:'lobby',players:[me],total:g.total,cfg:g.cfg,S:null,board:null,seq:0,pending:null,nextPid:g.k+2};
   MP.pid=me.pid;
   H.players=Array.from({length:g.k},(_,i)=>simBot(H,i+1,g.nm[i],g.lv[i%4])).concat(me);
   Object.assign(MP,{active:true,isHost:true,pid:me.pid,conn:null,ended:false,code:g.c,roster:null});
   pushState();
 }
 function simLobby(h){
-  if(!h.leavePlan)h.leavePlan=setTimeout(()=>{ /* every so often someone leaves the lobby, the host included */
+  if(!h.leavePlan){const post=h.postLeaves>0;h.leavePlan=setTimeout(()=>{ /* now and then someone leaves the lobby, a few more right after a match; the host too */
     h.leavePlan=null;
     if(H!==h||h.mode!=='lobby')return;
     const bs=h.players.filter(p=>p.bot&&p.connected);
-    if(bs.length>1&&Math.random()<.45){const b=choice(bs);clearTimeout(b.plan);dropPlayer(b)}else simLobby(h);
-  },botMs(5000,14000));
+    if(post)h.postLeaves--;
+    if(bs.length>1&&(post||Math.random()<.12)){const b=choice(bs);clearTimeout(b.plan);dropPlayer(b)}else simLobby(h);
+  },post?botMs(4000,16000):botMs(14000,32000))}
   h.players.forEach(b=>{if(b.bot&&!b.ready&&!b.plan)b.plan=setTimeout(()=>{b.plan=null;if(H===h&&h.mode==='lobby'&&h.players.indexOf(b)>=0){b.ready=true;pushState()}},b.pid===h.hostPid||Math.random()<.85?botMs(800,2500):botMs(8000,35000))}); /* a few bots take a while to press Ready */
   if(h.players.length<h.target&&!h.joinPlan)h.joinPlan=setTimeout(()=>{
     h.joinPlan=null;
     if(H!==h||h.mode!=='lobby'||h.players.length>=h.target)return;
     const bs=h.players.filter(p=>p.bot);
-    if(bs.length>1&&Math.random()<.25){const b=choice(bs);clearTimeout(b.plan);dropPlayer(b);return} /* now and then someone leaves the lobby before the game starts */
+    if(bs.length>1&&Math.random()<.08){const b=choice(bs);clearTimeout(b.plan);dropPlayer(b);return} /* now and then someone leaves the lobby before the game starts */
     const nm=freshName(h.players.map(p=>p.name).concat(settings.username));
     h.players.push(simBot(h,h.nextPid++,nm,BOT_LV[rint(4)]));pushState();
   },joinGap());
-  if(h.players.length>=h.target&&h.players.every(p=>p.here&&p.ready)&&!h.startPlan&&h.hostPid!==MP.pid)h.startPlan=setTimeout(()=>{h.startPlan=null;if(H===h&&h.mode==='lobby')hostStart()},botMs(2000,6000));
+  if(h.players.length>=h.target&&h.players.every(p=>p.here&&p.ready)&&!h.startPlan&&h.hostPid!==MP.pid)h.startPlan=setTimeout(()=>{h.startPlan=null;if(H===h&&h.mode==='lobby')hostStart()},Math.max(0,(h.t0||0)+(h.minLobby||0)-Date.now())+botMs(5000,13000)); /* a room never starts straight away: a minimum lobby time first, then a short ready-up */
 }
 /* ---------- time away: a practice room keeps going while the app is minimised or the screen is off ----------
    Every second hostTimers calls simBeat. If the gap since the last beat is long, the app was suspended and the room "ran" meanwhile:
    simCatchUp plays that time forward without animations, using the same rules as live play (bots trade and press Ready, a human who does nothing
-   is auto-readied after 60s, auto-rolls after 10s, leaves the results after 10s). The player's own actions are not simulated. */
+   is auto-readied after 60s, auto-rolls after 10s, leaves the results after 20s). The player's own actions are not simulated. */
 let lastBeat=Date.now();
 function simBeat(){
   const n=Date.now(), gap=n-lastBeat; lastBeat=n;
@@ -3051,7 +3217,7 @@ function simCatchUp(gap){
     const S=h.S, key=h.mode+(S?S.phase+S.rolls:'');
     if(h.mode==='lobby'){
       const w=p.ready?0:wOf(p,key), human=p.ready?0:Math.max(0,60000-w), need=Math.max(0,h.target-h.players.length);
-      const total=Math.max(human,need*5500)+2000+Math.random()*4000;
+      const minLeft=Math.max(0,(h.t0||0)+(h.minLobby||0)-t0), total=Math.max(human,need*5500,minLeft)+6000+Math.random()*8000;
       if(rem<total){
         for(let i=Math.min(need,Math.floor(rem/5500));i>0;i--)addBot();
         if(rem>=12000)bots().forEach(b=>{b.ready=true});
@@ -3061,7 +3227,7 @@ function simCatchUp(gap){
       rem-=total;
       while(h.players.length<h.target)addBot();
       bots().forEach(b=>{b.ready=true}); p.ready=true; p.wk='';
-      h.S=mpNewGame(h.players,h.total,h.cfg);h.mode='game';h.board=null;brBury(MP.code);h.players.forEach(q=>{q.ready=false;q.tr=false});
+      h.S=mpNewGame(h.players,h.total,h.cfg);h.mode='game';h.board=null;h.players.forEach(q=>{q.ready=false;q.tr=false});
     }else if(h.mode==='game'){
       const ph=S.phase;
       if(ph==='anim'){h.pending=null;endRoll(S);nextRoller();h.players.forEach(q=>{q.tr=false});rem-=600}
@@ -3079,7 +3245,7 @@ function simCatchUp(gap){
         rem-=2500+r.n*520+(r.event?3000:0);
       }else break;
     }else if(h.mode==='end'){
-      const w=p.here?0:wOf(p,key), cost=p.here?9000:Math.max(0,10000-w);
+      const w=p.here?0:wOf(p,key), cost=p.here?19000:Math.max(0,20000-w);
       if(rem<cost){if(!p.here)hold(p,key,w);rem=0;break}
       rem-=cost;h.players.forEach(q=>{if(q.bot||q===p){q.here=true;q.ready=false}});p.wk='';hostCheck();
     }else break;
@@ -3087,6 +3253,6 @@ function simCatchUp(gap){
   if(H===h){hostCheck();pushState()}
 }
 function simEnd(h){
-  h.players.forEach(p=>{if(p.bot&&!p.here&&!p.plan)p.plan=setTimeout(()=>{p.plan=null;if(H===h&&h.mode==='end'&&!p.here){p.here=true;p.ready=false;hostCheck();pushState()}},botMs(1500,9000))});
+  h.players.forEach(p=>{if(p.bot&&!p.here&&!p.plan)p.plan=setTimeout(()=>{p.plan=null;if(H===h&&h.mode==='end'&&!p.here){p.here=true;p.ready=false;hostCheck();pushState()}},botMs(3000,15000))});
 }
 </script>
