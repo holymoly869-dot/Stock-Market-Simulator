@@ -1,4 +1,5 @@
 <title>Stock Market Simulator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Layout: a trading board sized for one phone screen. Sticky cash strip on top, six stock rows in the middle, die and Ready button docked at the bottom. */
@@ -549,6 +550,8 @@ h1{text-shadow:0 2px 0 color-mix(in srgb,var(--accent) 35%,transparent)}
 .art{padding:12px 0;border-bottom:1px solid #BDB394}
 .art:last-child{border-bottom:0}
 .art .kick{font:700 10px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:#8A2A22}
+.art.rumor .kick{color:#6B5B8A;font-style:italic}
+.art.rumor h3{font-style:italic}
 .art .newtag{margin-left:8px;padding:1px 6px;border-radius:3px;background:#BE3A34;color:#fff;letter-spacing:.06em}
 .art h3{margin:3px 0 5px;font:800 21px/1.12 Georgia,'Times New Roman',serif;color:#1A160D}
 .art p{margin:0 0 8px;font:400 14px/1.4 Georgia,'Times New Roman',serif;color:#2C2616}
@@ -559,8 +562,147 @@ h1{text-shadow:0 2px 0 color-mix(in srgb,var(--accent) 35%,transparent)}
 .sheet .none{margin:18px 4px;font:400 14px/1.45 Georgia,'Times New Roman',serif;color:#4A412C;text-align:center}
 .sheet .foot{padding:8px 16px 11px;border-top:1px solid #BDB394;font:500 11.5px/1.35 var(--f-body);color:#5B513A;text-align:center}
 @media (prefers-reduced-motion:reduce){.paperbtn.has,.paperbtn.bob{animation:none}.sheet{animation:none}}
+
+/* ---- players popup and kick vote ---- */
+.plgrid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px 8px}
+.plc{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 2px 6px;border:2px solid transparent;border-radius:14px;background:none;color:var(--ink);font:inherit;cursor:default;-webkit-appearance:none;appearance:none}
+.plc.can{cursor:pointer;border-color:var(--line)}
+.plc[aria-pressed="true"]{border-color:var(--down);background:color-mix(in srgb,var(--down) 12%,transparent)}
+.plav{position:relative;display:block;width:64px;height:64px;border-radius:50%;overflow:hidden;flex:none}
+.plav svg{display:block;width:100%;height:100%}
+.plav .rdy{position:absolute;inset:0;display:grid;place-items:center;background:rgba(14,110,68,.74);color:#fff;font:800 12px var(--f-body);letter-spacing:.08em;text-transform:uppercase}
+.plc b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 14px var(--f-body)}
+.plc .tags{display:flex;gap:4px;justify-content:center;min-height:20px}
+#plPop .apopc{max-width:380px;max-height:86vh;overflow:auto}
+.plact{display:grid;gap:10px;text-align:center}
+.plact p{margin:0;font:500 13.5px/1.4 var(--f-body);color:var(--muted)}
+.kvbox{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:200px;z-index:9;width:min(236px,62vw);padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--down);box-shadow:0 10px 24px -12px rgba(0,0,0,.6);display:grid;gap:8px;animation:fadein .2s ease-out}
+.kvbox p{margin:0;font:500 12.5px/1.35 var(--f-body);color:var(--ink)}
+.kvbtn{min-height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--down);background:var(--down);color:#fff;font:700 13px var(--f-body);cursor:pointer}
+.kvbtn:disabled{background:transparent;color:var(--down);cursor:default}
+
+/* =====================================================================
+   FIT LAYER: the app is one fixed screen. The page never scrolls.
+   JS (see FIT LAYER at the bottom) picks a scale --z and a layout class
+   for the phone's aspect ratio, so everything fills the screen exactly.
+   ===================================================================== */
+:root{--z:1;--lw:100vw;--lh:100vh}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;background:var(--bg);-webkit-text-size-adjust:100%}
+body{position:fixed;inset:0;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+#stage{position:fixed;left:0;top:0;width:var(--lw);height:var(--lh);transform:scale(var(--z));transform-origin:0 0;overflow:hidden}
+
+/* every screen fills the stage; only a screen that truly cannot fit scrolls, and only up and down */
+#stage>.screen{--sp:36px;position:absolute;left:0;top:0;right:0;bottom:0;margin:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;
+  padding:calc(var(--sp) + env(safe-area-inset-top,0px)/var(--z)) 0 calc(var(--sp) + env(safe-area-inset-bottom,0px)/var(--z))}
+html.h-tight #stage>.screen{--sp:14px}
+#stage>.screen>.wrap{max-width:min(760px,100%)}
+#menu .wrap{min-height:calc(var(--lh) - 2*var(--sp,36px) - (env(safe-area-inset-top,0px) + env(safe-area-inset-bottom,0px))/var(--z))}
+html.measuring #menu .wrap{min-height:0}
+.mtitle{font-size:clamp(44px,calc(var(--lw)*.135),84px)}
+html.h-tight .mdie{display:none}
+html.h-tight .mtitle{margin-top:4px;font-size:clamp(38px,calc(var(--lw)*.11),66px)}
+html.h-tight .mtag{margin-top:10px}
+html.h-tight .mbtns{margin-top:18px;gap:10px}
+html.h-tight .mbtn{min-height:52px}
+html.h-tight .mfoot{padding-top:18px}
+html.h-tight .sh{font-size:40px}
+html.h-tight .stepper{margin-top:16px}
+
+/* overlays scale with the stage instead of the raw viewport */
+.kvbox{width:min(236px,calc(var(--lw)*.62));bottom:calc(var(--dockh,76px) + 12px)}
+.sheet{max-height:min(calc(var(--lh)*.84),720px)}
+#plPop .apopc{max-height:calc(var(--lh)*.86)}
+.apop,.paperov{overscroll-behavior:contain}
+
+/* ---------------- the game: header / cash strip / board / dock, all in one screen ---------------- */
+#stage>#game{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;flex-direction:column;overflow:hidden;touch-action:manipulation;
+  padding:calc(env(safe-area-inset-top,0px)/var(--z)) 0 calc(env(safe-area-inset-bottom,0px)/var(--z))}
+#game>main{width:100%}
+#game .wrap{padding-left:max(10px,env(safe-area-inset-left,0px)/var(--z));padding-right:max(10px,env(safe-area-inset-right,0px)/var(--z))}
+.ar-wide #game .wrap{max-width:1200px}
+
+/* header: one slim row (progress, ?, Menu). The big title only shows when there is room. */
+#game .head{flex:none;position:relative;z-index:12;padding-block:8px 4px}
+#game .head>.wrap{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:4px 8px}
+#game .brandrow,#game .howrow{display:contents}
+#game h1{display:none;grid-column:1;grid-row:1;font-size:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#game.g-roomy h1{display:block}
+#game .prog{grid-column:1;grid-row:1;justify-content:space-between;gap:10px;min-width:0}
+#game.g-roomy .prog{grid-column:1/-1;grid-row:2}
+#game .pips{flex:1;width:auto;max-width:170px}
+#game .sub{display:none}
+#game .how{grid-column:2;grid-row:1;position:static}
+#game .quit{grid-column:3;grid-row:1;min-height:32px}
+#game .how summary{list-style:none;display:grid;place-items:center;width:32px;height:32px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:0;color:var(--ink);cursor:pointer}
+#game .how summary::before{content:"?";font:700 15px var(--f-body)}
+#game .how summary::-webkit-details-marker{display:none}
+#game .how[open] summary{border-color:var(--accent)}
+#game .how ul{position:absolute;left:12px;right:12px;top:100%;z-index:30;max-width:none;max-height:calc(var(--lh)*.62);overflow-y:auto;margin:6px 0 0;padding:12px 14px 12px 30px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 40px -12px rgba(0,0,0,.5)}
+
+/* cash strip */
+#game .status{position:relative;top:auto;flex:none}
+#game .status .wrap{padding-block:6px;gap:8px}
+#game .cell{gap:3px}
+#game .val{font-size:19px}
+#game .cell.cash .val{font-size:24px}
+#game .status .lab{font-size:10px}
+
+/* the board takes whatever height is left; rows share it equally */
+#game>main{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding-block:8px}
+#game.scroll-fb>main{overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y}
+#game .tools{flex:none;display:flex;align-items:center;gap:8px;margin:0 0 6px}
+#game .tools .lab{font-size:10px;white-space:nowrap}
+#game .seg button{min-width:38px;height:34px;font-size:13px}
+#game .tapebtn{margin-left:auto;flex:none;min-height:34px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 13px var(--f-body);box-shadow:var(--lift);cursor:pointer}
+#game .paperbtn{position:relative;right:auto;bottom:auto;flex:none;width:40px;height:44px;margin:0 2px 0 2px}
+#game .paperbtn svg{width:100%;height:100%}
+#game .board{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:minmax(min-content,1fr);gap:6px}
+.ar-wide #game .board{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+
+/* compact row: name + own count | chart | price | Sell Buy */
+#game .row{grid-template-columns:minmax(0,1fr) 40px auto auto;grid-template-areas:"id spark px btns" "own spark px btns";gap:0 6px;padding:6px 8px 6px 14px;align-content:center;align-items:center;border-radius:14px}
+#game .row .id{gap:6px;min-width:0}
+#game .row .idt{min-width:0}
+#game .row .em{width:26px;height:26px;font-size:15px;border-radius:9px}
+#game .row .nm{font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#game .row .tick,#game .row .sec,#game .row .basis{display:none}
+#game .row .spark{width:40px;align-self:center}
+#game .px{min-width:58px;gap:2px}
+#game .price{font-size:17px}
+#game .chg{font-size:12px}
+#game .own{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#game .own b{font-size:12px}
+#game .btns{gap:6px;align-self:center}
+#game .btn{min-width:54px;min-height:34px;padding:0 6px;font-size:13px;white-space:nowrap}
+/* roomy row (used when the screen is tall enough): two lines, sector shown */
+#game.g-roomy .row{grid-template-columns:minmax(0,1fr) 56px auto;grid-template-areas:"id spark px" "own btns btns";gap:4px 12px;padding:6px 14px 6px 18px}
+#game.g-roomy .row .sec{display:block}
+#game.g-roomy .row .nm{font-size:23px}
+#game.g-roomy .row .spark{width:56px}
+#game.g-roomy .btn{min-width:72px}
+#game.g-roomy .own{font-size:12px}
+
+/* results panel keeps its own scroll as a last resort */
+#game #results{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y}
+html.h-tight .res{padding:14px}
+html.h-tight .res .big{font-size:42px}
+
+/* tape: a pop-up list instead of a block that pushes the page down */
+#game .tape{display:none;margin:0}
+#game.tape-open .tape{display:block;position:absolute;left:12px;right:12px;bottom:calc(var(--dockh,76px) + 8px);max-height:48%;overflow-y:auto;z-index:20;padding:12px 14px;background:var(--surface);border:1px solid var(--accent);border-radius:14px;box-shadow:0 18px 40px -12px rgba(0,0,0,.55)}
+
+/* dock sits at the bottom of the flow instead of floating over the content */
+#game .dock{position:relative;left:auto;right:auto;bottom:auto;flex:none;padding-bottom:0}
+#game .dock .wrap{padding-block:8px;gap:12px}
+#game .die{width:60px;height:60px}
+#game .die .cube{--s:38px}
+#game .msg b{font-size:14px}
+#game .msg span{font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#game .dock .go{min-height:46px;padding:0 20px;font-size:16px}
 </style>
 
+<div id="stage">
 <section class="screen" id="menu" hidden>
   <svg class="hchart" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--accent)" stop-opacity=".3"/><stop offset="1" style="stop-color:var(--accent)" stop-opacity="0"/></linearGradient></defs><path d="M0 190 L40 170 L70 182 L110 138 L150 150 L190 98 L230 118 L270 66 L310 84 L350 38 L400 18 L400 220 L0 220Z" fill="url(#hg)"/><polyline points="0,190 40,170 70,182 110,138 150,150 190,98 230,118 270,66 310,84 350,38 400,18" fill="none" style="stroke:var(--accent)" stroke-width="3" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/></svg>
   <div class="wrap">
@@ -590,6 +732,14 @@ h1{text-shadow:0 2px 0 color-mix(in srgb,var(--accent) 35%,transparent)}
   </div>
 </div>
 
+<div class="apop" id="noticePop" role="alertdialog" aria-modal="true" aria-labelledby="ntT" hidden>
+  <div class="apopc" style="text-align:center">
+    <h3 id="ntT">Game is full</h3>
+    <p class="sp" id="ntS"></p>
+    <button type="button" class="go" id="ntOk">OK</button>
+  </div>
+</div>
+
 <div class="apop" id="pause" role="dialog" aria-modal="true" aria-labelledby="pzT" hidden>
   <div class="apopc">
     <h3 class="pzh" id="pzT">Game Paused</h3>
@@ -597,6 +747,7 @@ h1{text-shadow:0 2px 0 color-mix(in srgb,var(--accent) 35%,transparent)}
     <ul class="plist" id="pzPlayers" hidden></ul>
     <button type="button" class="go" id="pzResume">Resume</button>
     <button type="button" class="ghost" id="pzOptions">Options</button>
+    <button type="button" class="ghost" id="pzKick" hidden>Kick player</button>
     <button type="button" class="ghost" id="pzQuit">Quit</button>
   </div>
 </div>
@@ -787,10 +938,6 @@ h1{text-shadow:0 2px 0 color-mix(in srgb,var(--accent) 35%,transparent)}
         <button type="button" class="opt" data-set="qty" data-val="max" aria-pressed="false">Max</button>
       </div>
     </div>
-    <div class="orow">
-      <div class="olab"><b>Best scores</b><span>Saved on this device for each number of rolls, with default rules</span></div>
-      <div class="rowbtns"><button type="button" class="ghost" id="optReset">Reset best scores</button></div>
-    </div>
     </div>
   </div>
 </section>
@@ -811,7 +958,7 @@ h1{text-shadow:0 2px 0 color-mix(in srgb,var(--accent) 35%,transparent)}
         <summary>How to play</summary>
         <ul>
           <li id="howStart"></li>
-          <li>Press Ready, then roll the die. That many days pass and every price moves. Check the newspaper on the right: its tips say which stock may move in the next few days, but not every tip comes true.</li>
+          <li>Press Ready, then roll the die. That many days pass and every price moves. Check the newspaper on the right: it hints at which stock might move in the next few days, but nothing in it is certain.</li>
           <li>Every stock has a hidden personality, calm or wild, trending up or down. It is new every game, so read the charts.</li>
           <li id="howEvents"></li>
           <li>The percent next to each price is measured from your average buy price for that stock, or from the starting price if you do not own it.</li>
@@ -841,6 +988,17 @@ h1{text-shadow:0 2px 0 color-mix(in srgb,var(--accent) 35%,transparent)}
       <button type="button" data-q="10" aria-pressed="false">10</button>
       <button type="button" data-q="max" aria-pressed="false">Max</button>
     </div>
+    <button type="button" class="tapebtn" id="tapeBtn" aria-pressed="false">Tape</button>
+    <button type="button" class="paperbtn" id="paperBtn" aria-label="Newspaper">
+  <svg viewBox="0 0 56 62" width="56" height="62" aria-hidden="true">
+    <rect x="11" y="7" width="40" height="49" rx="3" fill="#D6CFB6" transform="rotate(6 31 31)"/>
+    <rect x="5" y="4" width="43" height="51" rx="3" fill="#F6F0DC" stroke="#2A2418" stroke-width="1.7"/>
+    <rect x="9" y="8" width="35" height="8" fill="#2A2418"/><path d="M14 12h25" stroke="#F6F0DC" stroke-width="1.8" stroke-linecap="round"/>
+    <rect x="9" y="20" width="16" height="14" fill="#CFC6A8" stroke="#2A2418" stroke-width="1"/><path d="M10.5 31l4-6 3 3.5 3-4.5 3.5 7" stroke="#2A2418" fill="none" stroke-width="1.2" stroke-linejoin="round"/>
+    <path d="M29 22h15M29 26.5h15M29 31h11M9 38h35M9 42.5h35M9 47h35M9 51h20" stroke="#2A2418" stroke-width="1.7" stroke-linecap="round"/>
+  </svg>
+  <span class="pbadge" id="paperBadge" hidden>0</span>
+</button>
   </div>
   <section class="board" id="board" aria-label="Stocks"></section>
   <section id="results" hidden></section>
@@ -857,26 +1015,27 @@ h1{text-shadow:0 2px 0 color-mix(in srgb,var(--accent) 35%,transparent)}
     <button type="button" class="go" id="go">Ready</button>
   </div>
 </div>
-<button type="button" class="paperbtn" id="paperBtn" aria-label="Newspaper">
-  <svg viewBox="0 0 56 62" width="56" height="62" aria-hidden="true">
-    <rect x="11" y="7" width="40" height="49" rx="3" fill="#D6CFB6" transform="rotate(6 31 31)"/>
-    <rect x="5" y="4" width="43" height="51" rx="3" fill="#F6F0DC" stroke="#2A2418" stroke-width="1.7"/>
-    <rect x="9" y="8" width="35" height="8" fill="#2A2418"/><path d="M14 12h25" stroke="#F6F0DC" stroke-width="1.8" stroke-linecap="round"/>
-    <rect x="9" y="20" width="16" height="14" fill="#CFC6A8" stroke="#2A2418" stroke-width="1"/><path d="M10.5 31l4-6 3 3.5 3-4.5 3.5 7" stroke="#2A2418" fill="none" stroke-width="1.2" stroke-linejoin="round"/>
-    <path d="M29 22h15M29 26.5h15M29 31h11M9 38h35M9 42.5h35M9 47h35M9 51h20" stroke="#2A2418" stroke-width="1.7" stroke-linecap="round"/>
-  </svg>
-  <span class="pbadge" id="paperBadge" hidden>0</span>
-</button>
+<div class="kvbox" id="kvBox" role="alert" hidden>
+  <p id="kvTxt"></p>
+  <button type="button" class="kvbtn" id="kvBtn">Kick</button>
+</div>
+<div class="apop" id="plPop" role="dialog" aria-modal="true" aria-labelledby="plT" hidden>
+  <div class="apopc">
+    <h3 id="plT">Players</h3>
+    <div id="plBody"></div>
+    <button type="button" class="ghost" id="plClose">Close</button>
+  </div>
+</div>
 <div class="paperov" id="paperOv" role="dialog" aria-modal="true" aria-label="The Market Times" hidden>
   <div class="sheet">
     <button type="button" class="x" id="paperX" aria-label="Close the newspaper">✕</button>
     <div class="mast"><h2>The Market Times</h2><p id="paperMeta"></p></div>
     <div class="col" id="paperCol"></div>
-    <div class="foot">Tips point at a stock's next few days. Most come true, rumors less often.</div>
+    <div class="foot">Nothing here is certain. Reports usually come true, rumors rarely do.</div>
   </div>
 </div>
 </div>
-
+</div>
 <div id="feed" aria-live="polite"></div>
 <div id="burst" aria-hidden="true"></div>
 <div id="callout" aria-hidden="true"></div>
@@ -906,17 +1065,21 @@ const SECTORS=[
   {sector:'Mining',up:'Rich ore vein found',down:'Shaft collapse halts digging'}
 ];
 /* Rules a host can change before a game starts. */
-const DEFAULT_CFG={cash:1000,price:200,companies:6,wild:'auto',every:3,shock:'normal',cashEvt:200,news:'normal',mood:'normal',labels:false,evPrice:true,evCash:true,evShare:true};
+const DEFAULT_CFG={cash:1000,price:200,companies:6,wild:'auto',every:3,shock:'normal',cashEvt:200,paper:true,news:'steady',rumors:50,mood:'normal',labels:false,evPrice:true,evCash:true,evShare:true};
 const SHOCK={small:[25,50],normal:[50,100],huge:[100,200]};
-const NEWS={off:0,normal:0.55,often:0.9}; /* chance of a news story after each roll */
+const NEWS={quiet:[.75,.25,0],steady:[.45,.5,.05],busy:[.2,.6,.2],frenzy:[0,.5,.5]}; /* chance of 0, 1 or 2 stories after each roll */
 /* The paper. A story is a tip about one company: it says what may happen and in how many days. Most tips come true, some fizzle out.
    Where the tip came from sets how reliable it is, and each sector has its own stories so the paper never reads the same twice. */
-const NEWS_SRC=[
-  {k:'Breaking news',p:.92,lead:'Reports show that '},
-  {k:'Analyst note',p:.8,lead:'Analysts say '},
-  {k:'Insider tip',p:.68,lead:'A source close to the company says '},
-  {k:'Rumor mill',p:.5,lead:'Word on the street is that '}
-];
+const NEWS_SRC={
+  report:[
+    {k:'Breaking news',p:.9,lead:'Reports hint that '},
+    {k:'Analyst note',p:.82,lead:'Analysts suspect '},
+    {k:'Insider tip',p:.72,lead:'A source close to the company hints that '}],
+  rumor:[
+    {k:'Rumor mill',p:.35,lead:'Word on the street is that '},
+    {k:'Overheard',p:.3,lead:'Someone swears that '},
+    {k:'Unconfirmed',p:.4,lead:'Unconfirmed chatter says that '}]
+};
 const NEWS_VERB={
   upS:['skyrocket','soar','rocket','take off'],upM:['climb','jump','rally','rise'],
   dnS:['crash','plunge','tank','tumble'],dnM:['slide','slip','sink','dip']
@@ -955,7 +1118,9 @@ function normCfg(c){
   c.wild=c.wild==='auto'?'auto':num(c.wild,0,c.companies,0);
   c.every=num(c.every,0,10,3); c.cashEvt=num(c.cashEvt,10,10000,200);
   if(!SHOCK[c.shock])c.shock='normal';
-  if(!(c.news in NEWS))c.news='normal';
+  if(c.news==='off')c.paper=false; /* older saved rules */
+  c.news=({normal:'steady',often:'busy',off:'steady'})[c.news]||c.news; if(!(c.news in NEWS))c.news='steady';
+  c.paper=c.paper!==false; c.rumors=Math.max(10,Math.min(50,Math.round(num(c.rumors,10,50,50)/10)*10));
   if(!(c.mood in MOOD))c.mood='normal';
   c.labels=!!c.labels; c.evPrice=!!c.evPrice; c.evCash=!!c.evCash; c.evShare=!!c.evShare;
   return c;
@@ -1040,19 +1205,23 @@ function stepDay(S){
 }
 /* After a roll the paper may print a tip about a company that has no tip pending. The prices do not move yet. */
 function newsAfterRoll(S){
-  const ch=NEWS[S.cfg.news]; if(!ch||S.rolls>=S.total)return;
-  let n=Math.random()<ch?1:0; if(n&&S.cfg.news==='often'&&Math.random()<.35)n=2;
+  if(!S.cfg.paper||S.rolls>=S.total)return;
+  const w=NEWS[S.cfg.news]||NEWS.steady, r=Math.random(), n=r<w[0]?0:r<w[0]+w[1]?1:2;
   for(let k=0;k<n;k++)makeNews(S);
 }
 function makeNews(S){
   S.paper=S.paper||[]; S.nid=S.nid||0;
   const free=S.cos.map((c,i)=>i).filter(i=>!S.paper.some(n=>n.i===i&&n.state==='wait')); if(!free.length)return;
   const i=pick(free), c=S.cos[i], up=Math.random()<.5, mag=0.08+Math.random()*0.1, d=ri(1,4);
-  const src=pick(NEWS_SRC), real=Math.random()<src.p, bank=NEWS_BANK[c.sector]||NEWS_BANK.Energy;
-  const verb=pick(NEWS_VERB[(up?'up':'dn')+(mag>0.13?'S':'M')]), when='in '+d+(d===1?' day':' days'), r=Math.random();
-  const head=r<.55?c.name+' '+pick(['might','could','may'])+' '+verb+' '+when:r<.8?c.name+' is tipped to '+verb+' '+when:c.name+' looks set to '+verb+' '+when;
-  const body=src.lead+pick(up?bank.up:bank.down)+'.';
-  S.paper.unshift({id:++S.nid,i,co:c.name,sector:c.sector,up,day:S.day,roll:S.rolls,due:S.day+d,src:src.k,head,body,real,mag,state:'wait'});
+  const rumor=Math.random()*100<(S.cfg.rumors||50), src=pick(NEWS_SRC[rumor?'rumor':'report']), real=Math.random()<src.p, bank=NEWS_BANK[c.sector]||NEWS_BANK.Energy;
+  const verb=pick(NEWS_VERB[(up?'up':'dn')+(mag>0.13?'S':'M')]), story=pick(up?bank.up:bank.down);
+  /* nothing is ever stated as a fact: every headline is a maybe, and so is the timing */
+  const when=d===1?pick(['within a day','by tomorrow']):pick(['in '+d+' days','in about '+d+' days','within '+d+' days']), modal=pick(['might','could','may','might just']), r=Math.random();
+  let head,body;
+  if(r<.5){head=c.name+' '+modal+' '+verb+' '+when;body=src.lead+story+'.'}
+  else if(r<.8){head=c.name+' '+modal+' '+verb+' as '+story;body=pick(['Nothing is confirmed yet, but the chatter points to a move '+when+'.','Traders are watching closely. If it happens, it could come '+when+'.','No official word yet. Any move might land '+when+'.'])}
+  else{head='Could '+c.name+' '+verb+' '+when+'?';body=src.lead+story+'.'}
+  S.paper.unshift({id:++S.nid,i,co:c.name,sector:c.sector,up,day:S.day,roll:S.rolls,due:S.day+d,src:src.k,rumor,head,body,real,mag,state:'wait'});
   if(S.paper.length>30)S.paper.length=30;
   pushLog(S,{kind:'news',day:S.day,co:c.name,text:head});
 }
@@ -1106,10 +1275,10 @@ function runEvent(S){
   return S.event;
 }
 function eventDelta(e){return e.unit==='share'?(e.sign>0?'+':'−')+'1 share':(e.sign>0?'+':'−')+usd(e.amount)}
-function finishGame(S,prevBest){
+function finishGame(S){
   const p=S.players[0];
   S.phase='end';
-  S.result={cash:p.cash,gain:p.cash-S.cfg.cash,left:holdingsValue(S,p),prev:prevBest};
+  S.result={cash:p.cash,gain:p.cash-S.cfg.cash,left:holdingsValue(S,p)};
   return S.result;
 }
 /* Multiplayer, host side: one shared game. Everyone trades at once, then one player rolls. */
@@ -1138,7 +1307,7 @@ const avgFmt=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:Number.isInt
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const reduceMotion=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
-const BEST_KEY='dicestreet.best';
+try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.indexOf('dicestreet.best')===0)localStorage.removeItem(k)}}catch(e){} /* old saved best scores are not used any more */
 const SKEY='smsim.settings';
 const NAME_RE=/^[\p{L}\p{N} _.\-]{1,16}$/u;
 const SCREENS=['menu','mp','mpcreate','mpjoin','lobby','setup','bots','custom','options','game'];
@@ -1529,10 +1698,10 @@ function renderDock(){
   const d=dockInfo(), ph=S.phase, die=$('#die'), go=$('#go');
   $('#msgT').textContent=d.t; $('#msgS').textContent=d.s;
   go.hidden=!d.btn; if(d.btn)go.textContent=d.btn;
-  die.disabled=!d.canRoll;
+  die.disabled=MP.active?false:!d.canRoll; /* in multiplayer a tap on a die that cannot roll shows the players */
   die.classList.toggle('armed',d.canRoll);
   if(ph!=='rolling'){die.classList.remove('tumble');setDie(S.lastRoll)}
-  die.setAttribute('aria-label',d.canRoll?'Roll the die':'Die showing '+(S.lastRoll||'nothing yet'));
+  die.setAttribute('aria-label',d.canRoll?'Roll the die':'Die showing '+(S.lastRoll||'nothing yet')+(MP.active?'. Tap to see the players':''));
 }
 function renderResults(){
   const end=S.phase==='end', el=$('#results');
@@ -1543,19 +1712,12 @@ function renderResults(){
   const fresh=el.dataset.d!=='1'; el.dataset.d='1';
   const r=S.result, base=S.cfg.cash, up=r.gain>0, flat=r.gain===0, ratio=r.gain/base;
   const verdict=r.gain<0?'You finished below your starting cash.':flat?'You finished exactly where you started.':ratio<0.25?'A small profit.':ratio<0.6?'A solid profit.':'A strong profit.';
-  let best='';
-  if(!cfgIsDefault(S.cfg))best='Custom rules were on, so this score is not saved as a best.';
-  else if(r.prev!==null&&r.prev!==undefined){
-    const kind=S.total+'-roll games';
-    best=r.cash>r.prev?(r.prev===0?'First '+kind.slice(0,-1)+' finish saved on this device.':'New best for '+kind+' on this device. The old best was '+money(r.prev)+'.'):'Best for '+kind+' on this device: '+money(r.prev)+'.';
-  }
   el.innerHTML='<div class="res'+(fresh?' res-in':'')+'">'+(up?TROPHY:'')
     +'<span class="lab">'+esc(S.players[0].name)+'’s final cash</span>'
     +'<p class="big">'+money(r.cash)+'</p>'
     +'<p class="delta '+(up?'t-up':flat?'':'t-down')+'" style="margin-top:0">'+(up?'+':r.gain<0?'−':'')+money(Math.abs(r.gain))+' from '+money(base)+' ('+(up?'+':r.gain<0?'−':'')+Math.abs(Math.round(ratio*100))+'%)</p>'
     +'<p>'+verdict+'</p>'
     +(r.left>0?'<p class="muted">You still held '+money(r.left)+' in shares. They did not count.</p>':'')
-    +(best?'<p class="muted">'+best+'</p>':'')
     +'<span class="lab" style="display:block;margin-top:18px">Your rolls</span>'
     +'<div class="chips">'+S.rollsLog.map((n,ci)=>'<span class="chip" style="--i:'+ci+'" role="img" aria-label="Rolled '+n+'">'+Array.from({length:9},(_,k)=>'<i'+(PIPS[n].indexOf(k)>-1?' class="on"':'')+'></i>').join('')+'</span>').join('')+'</div>'
     +'</div>';
@@ -1583,13 +1745,60 @@ function renderBar(){
     n.classList.toggle('me',o.p.pid===MP.pid)});
   el.setAttribute('aria-label','Net worth: '+[...ord].reverse().map(o=>o.p.name+' '+money(Math.round(o.p.nw))).join(', '));
 }
-function render(){renderStatus();renderBoard();renderTape();renderDock();renderResults();renderBar();renderPause();paperSync()}
+function render(){renderStatus();renderBoard();renderTape();renderDock();renderResults();renderBar();renderPause();paperSync();renderPlayers();kvSync()}
+/* ---------- players popup: tap the die in multiplayer. A to Z, a Ready badge on the face, YOU and HOST tags ---------- */
+let plSel=0, plHtml='';
+const plSrc=()=>MP.next||MP.snap;
+const plWaited=(p,src)=>p.w>0?p.w+(Date.now()-(src._at||Date.now())):0;
+function renderPlayers(){
+  if($('#plPop').hidden)return;
+  const src=plSrc(); if(!src)return;
+  const trading=src.mode==='game'&&!!src.S&&(src.S.phase==='trade'||src.S.phase==='final');
+  const live=src.players.filter(p=>p.connected).sort((a,b)=>a.name.localeCompare(b.name,undefined,{sensitivity:'base'})||a.pid-b.pid);
+  const slow=p=>trading&&!src.off&&!src.sim&&!p.bot&&p.pid!==MP.pid&&!p.tr&&plWaited(p,src)>=KV_WAIT; /* waited over 30 seconds to press Ready */
+  const sel=live.find(p=>p.pid===plSel); if(!sel||!slow(sel))plSel=0;
+  const cards=live.map(p=>{
+    const tags=(p.pid===MP.pid?'<span class="tag">YOU</span>':'')+(p.pid===(src.hostPid||1)&&!src.off?'<span class="tag">HOST</span>':'');
+    const rdy=trading&&p.tr, can=slow(p);
+    return '<li><button type="button" class="plc'+(can?' can':'')+'" data-pid="'+p.pid+'" aria-pressed="'+(plSel===p.pid)+'"'+(can?'':' tabindex="-1"')+'><span class="plav">'+avatarSvg(p.av|0)+(rdy?'<span class="rdy">Ready</span>':'')+'</span><b>'+esc(p.name)+'</b><span class="tags">'+tags+'</span></button></li>';
+  }).join('');
+  let act='';
+  if(plSel){
+    const t=live.find(p=>p.pid===plSel), humans=live.filter(p=>!p.bot).length;
+    if(src.kv)act='<p>A vote to kick '+esc(src.kv.name)+' is already running.</p>';
+    else if(humans-1<KV_NEED)act='<p>A kick vote needs at least '+KV_NEED+' players to vote. The host can kick players from the Back menu.</p>';
+    else act='<p>'+esc(t.name)+' has not pressed Ready for over 30 seconds.</p><button type="button" class="go" id="plVote">Start kick vote?</button>';
+  }
+  const html='<ul class="plgrid">'+cards+'</ul>'+(act?'<div class="plact">'+act+'</div>':'');
+  if(html!==plHtml){plHtml=html;$('#plBody').innerHTML=html} /* only touch the popup when something changed so taps are never lost */
+}
+function playersOpen(){plSel=0;plHtml='';$('#plPop').hidden=false;renderPlayers();SFX.play('tap');try{$('#plClose').focus({preventScroll:true})}catch(e){}}
+function plShut(){$('#plPop').hidden=true;plSel=0}
+$('#plClose').addEventListener('click',plShut);
+$('#plPop').addEventListener('click',e=>{if(e.target.id==='plPop')plShut()});
+$('#plBody').addEventListener('click',e=>{
+  if(e.target.closest('#plVote')){const pid=plSel;plShut();mpSend({t:'kvstart',pid});return}
+  const c=e.target.closest('.plc.can'); if(!c)return;
+  const pid=Number(c.dataset.pid); plSel=plSel===pid?0:pid; plHtml=''; renderPlayers();
+});
+setInterval(renderPlayers,1000); /* the 30 second mark arrives with no new snapshot */
+/* the side card everyone but the slow player sees while a kick vote runs */
+function kvSync(){
+  const src=MP.snap, box=$('#kvBox'), kv=MP.active&&src&&!src.off&&!src.sim&&src.kv;
+  if(!kv||kv.pid===MP.pid||screen!=='game'){box.hidden=true;return}
+  const voted=kv.by.indexOf(MP.pid)>=0, b=$('#kvBtn');
+  $('#kvTxt').textContent=kv.name+' has taken more time to give “Ready”, vote to kick them.';
+  b.disabled=voted; b.textContent=(voted?'Voted':'Kick')+' ('+kv.n+(kv.n===1?' vote)':' votes)');
+  const d=document.querySelector('.dock'); box.style.bottom=((d?d.offsetHeight:80)+100)+'px';
+  if(box.hidden){box.hidden=false;SFX.play('pause')}
+}
+$('#kvBtn').addEventListener('click',()=>{$('#kvBtn').disabled=true;mpSend({t:'kvvote'})});
 /* ---------- the newspaper: a button on the right edge, bobs and chimes when a story is printed, badge = stories not read yet ---------- */
 let paperRead=0, paperSeen=0, paperFresh=0;
 const paperList=()=>(S&&S.paper)||[];
 function paperSync(){
   const btn=$('#paperBtn'), items=paperList();
-  btn.hidden=!S||S.cfg.news==='off';
+  btn.hidden=!S||!S.cfg.paper;
   if(!items.length){paperRead=0;paperSeen=0} /* a new game starts with an empty paper */
   const top=items.length?items[0].id:0, open=!$('#paperOv').hidden;
   if(top>paperSeen){
@@ -1607,7 +1816,7 @@ function renderPaper(){
   $('#paperCol').innerHTML=items.length?items.map(n=>{
     const left=n.due-day, fresh=n.id>paperFresh;
     const st=n.state==='hit'?'<span class="st hit">✔ Came true</span>':n.state==='miss'?'<span class="st miss">✘ Fizzled out</span>':'<span class="st wait">Expected '+(left<=1?'within a day':'in about '+left+' days')+'</span>';
-    return '<article class="art"><div class="kick">'+esc(n.src)+(fresh?'<span class="newtag">NEW</span>':'')+'</div><h3>'+esc(n.head)+'</h3><p>'+esc(n.body)+'</p><div class="meta"><span class="chip">'+esc(n.co)+' · '+esc(n.sector)+'</span><span class="chip">Day '+n.day+'</span>'+st+'</div></article>';
+    return '<article class="art'+(n.rumor?' rumor':'')+'"><div class="kick">'+esc(n.src)+(n.rumor?' · rumor':'')+(fresh?'<span class="newtag">NEW</span>':'')+'</div><h3>'+esc(n.head)+'</h3><p>'+esc(n.body)+'</p><div class="meta"><span class="chip">'+esc(n.co)+' · '+esc(n.sector)+'</span><span class="chip">Day '+n.day+'</span>'+st+'</div></article>';
   }).join(''):'<p class="none">No news yet. After a few rolls the paper starts printing tips about where a stock may head. Not every tip comes true.</p>';
 }
 function paperOpen(){
@@ -1628,7 +1837,9 @@ const CUSTOM=[
   {key:'companies',label:'Companies',hint:'How many stocks are on the board',opts:[[3,'3'],[4,'4'],[5,'5'],[6,'6'],[7,'7'],[8,'8']]},
   {key:'wild',label:'Wild companies',hint:'Stocks that swing hard. Mixed gives a random spread. You still have to work out which ones they are.',opts:[['auto','Mixed'],[0,'0'],[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5'],[6,'6'],[7,'7'],[8,'8']]},
   {key:'mood',label:'Market mood',hint:'How hard prices move every day',opts:[['calm','Calm'],['normal','Normal'],['stormy','Stormy']]},
-  {key:'news',label:'Stock news',hint:'Headlines that jolt a single stock',opts:[['off','Off'],['normal','Normal'],['often','Often']]},
+  {key:'paper',label:'Newspaper',hint:'A paper with tips about where a stock may head. Off removes it completely',opts:[[true,'On'],[false,'Off']]},
+  {key:'news',label:'Print rate',hint:'How many stories the paper prints',opts:[['quiet','Quiet'],['steady','Steady'],['busy','Busy'],['frenzy','Frenzy']]},
+  {key:'rumors',label:'Rumor share',hint:'How many stories are only rumors. Rumors are often wrong, reports mostly come true',opts:[[10,'10%'],[20,'20%'],[30,'30%'],[40,'40%'],[50,'50%']]},
   {key:'labels',label:'Risk labels',hint:'Show a Steady or Wild tag on each stock',opts:[[false,'Hidden'],[true,'Shown']]},
   {key:'every',label:'Rolls per event',hint:'Rolls between random events',opts:[[0,'Off'],[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5'],[6,'6']]},
   {key:'shock',label:'Crash and surge size',hint:'Small $25–50, normal $50–100, huge $100–200',opts:[['small','Small'],['normal','Normal'],['huge','Huge']]},
@@ -1656,7 +1867,7 @@ function renderCustom(){
   $('#cRolls').hidden=!(MP.isHost||custFrom==='bots');$('#cNum').textContent=rollsPick;$('#cMinus').disabled=rollsPick<=MIN_ROLLS;$('#cPlus').disabled=rollsPick>=MAX_ROLLS;
   $('#customList').innerHTML=CUSTOM.map(f=>{
     const opts=f.opts.map(o=>{
-      const dis=f.key==='wild'&&typeof o[0]==='number'&&o[0]>cfgPick.companies;
+      const dis=(f.key==='wild'&&typeof o[0]==='number'&&o[0]>cfgPick.companies)||((f.key==='news'||f.key==='rumors')&&!cfgPick.paper);
       return '<button type="button" class="opt" data-k="'+f.key+'" data-v="'+o[0]+'" aria-pressed="'+(cfgPick[f.key]===o[0])+'"'+(dis?' disabled':'')+'>'+o[1]+'</button>';
     }).join('');
     return '<div class="crow"><div class="clab"><b>'+f.label+'</b><span>'+f.hint+'</span></div><div class="opts" role="group" aria-label="'+f.label+'">'+opts+'</div></div>';
@@ -1728,7 +1939,7 @@ function renderMenu(){$('#uInput').value=settings.username;$('#avBtn').innerHTML
 function show(name){
   const prev=screen; screen=name;
   AUD.duck(false);MUS.scene(name==='game'?'game':'menu');
-  $('#pop').hidden=true;$('#pause').hidden=true;$('#paperOv').hidden=true;if(name!=='options'&&name!=='game')optFrom='menu';
+  $('#pop').hidden=true;$('#pause').hidden=true;$('#paperOv').hidden=true;$('#noticePop').hidden=true;$('#plPop').hidden=true;if(name!=='options'&&name!=='game')optFrom='menu';
   SCREENS.forEach(id=>{$('#'+id).hidden=id!==name});
   if(name==='menu')renderMenu();
   if(name==='mp')enterMp();
@@ -1810,20 +2021,9 @@ function closePopup(){
   if(mot()&&!pp.hidden){pp.classList.add('out');closePopup.t=setTimeout(()=>{pp.hidden=true;pp.classList.remove('out')},210)}else pp.hidden=true;
   const r=popResolve; popResolve=null; if(r)r();
 }
-function bestKey(total){return BEST_KEY+'.'+total}
 function finish(){
   if(S.phase!=='final')return;
-  const track=cfgIsDefault(S.cfg);
-  let prev=null;
-  if(track){
-    try{
-      let v=localStorage.getItem(bestKey(S.total));
-      if(v===null&&S.total===10)v=localStorage.getItem(BEST_KEY);
-      prev=v===null?0:Number(v)||0;
-    }catch(e){}
-  }
-  const r=finishGame(S,prev);
-  try{if(track&&prev!==null&&r.cash>prev)localStorage.setItem(bestKey(S.total),String(r.cash))}catch(e){}
+  const r=finishGame(S);
   render();
   if(r.gain>0)burst(46);
   SFX.play(r.gain>0?'win':'lose');
@@ -1838,12 +2038,23 @@ function keepFocus(fn){
   }
 }
 function resetQuit(){const b=$('#quit');delete b.dataset.armed;b.textContent=MP.active&&!(H&&H.offline)?'Leave':'Menu'}
-function resetScoresLabel(){const b=$('#optReset');delete b.dataset.armed;b.textContent='Reset best scores'}
 
 /* ---------- multiplayer (online, PeerJS) ---------- */
 const MAX_PLAYERS=8;
 let H=null, joinLoad=0, pubList=[];
-const amHost=()=>MP.isHost&&!(H&&H.sim); /* practice rooms run a local host but the player is a guest in them */
+const amHost=()=>MP.isHost&&!(H&&H.sim&&H.hostPid!==MP.pid); /* practice rooms run a local host, but you are a guest in them until the host role reaches you */
+/* Who gets a room when its host leaves: the next player who joined after them, wrapping round to the first. Used by real rooms and practice rooms alike. */
+function heirOf(from){
+  if(!H||!from)return null;
+  const L=H.players, i=L.indexOf(from), now=Date.now();
+  if(i<0)return null;
+  for(let k=1;k<L.length;k++){
+    const q=L[(i+k)%L.length];
+    if(q.connected&&(H.sim||(q.conn!==null&&now-q.seen<12000)))return q;
+  }
+  return null;
+}
+const leaveText=()=>{const me=H&&H.players.find(p=>p.pid===MP.pid);return amHost()&&!(H&&H.offline)&&!heirOf(me)?'Close room':'Leave'}; /* the room only closes when nobody is left to take it */
 
 /* ----- online transport: PeerJS (free public signaling server + WebRTC data channels). The room code is the host's peer id. ----- */
 const PEER_SRC=['https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js','https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'];
@@ -1879,12 +2090,12 @@ function peerT(){
     kind:'peer',
     get code(){return code},
     start(f){emit=f},
-    host(){
+    host(want){ /* want = a room code to take over (host hand-over); otherwise a fresh random code */
       manual=false;
       return loadPeerLib().then(()=>new Promise((ok,no)=>{
         let tries=0;
         (function attempt(){
-          code=Array.from({length:CODE_LEN},()=>CODE_CH[Math.floor(Math.random()*CODE_CH.length)]).join('');
+          code=want||Array.from({length:CODE_LEN},()=>CODE_CH[Math.floor(Math.random()*CODE_CH.length)]).join('');
           const p=mk(ROOM_PRE+code); let up=false;
           const t=setTimeout(()=>{if(!up){try{p.destroy()}catch(e){}no(new Error('The online service did not answer. Try again in a moment.'))}},15000);
           p.on('open',()=>{up=true;clearTimeout(t);hostPeer=p;ok()});
@@ -1895,6 +2106,7 @@ function peerT(){
           p.on('error',e=>{
             if(up)return; /* after the room is up, signaling blips are handled by 'disconnected' */
             clearTimeout(t);try{p.destroy()}catch(x){}
+            if(e.type==='unavailable-id'&&want&&tries++<25){setTimeout(attempt,900);return} /* the old host is still letting go of the code */
             if(e.type==='unavailable-id'&&tries++<5)return attempt();
             no(new Error('Could not reach the online service ('+(e.type||'error')+'). Check your internet connection.'));
           });
@@ -1941,7 +2153,7 @@ function onNet(e){
   }else if(e.t==='sig'){
     if(MP.isHost)banner(e.on?'Reconnecting to the online service…':'');
   }else if(e.t==='dead'){
-    if(MP.isHost)lost('The online connection was lost, so the room closed. Create it again.');
+    if(MP.isHost)lost('The server crashed. Create the room again.');
   }
 }
 function mpSend(m){if(MP.isHost)act(H.players.find(p=>p.pid===MP.pid),m); else Net.send(MP.conn,m)}
@@ -1966,16 +2178,43 @@ function fetchPublic(){
 
 /* ----- host: the only place game rules run ----- */
 function cleanS(S){return JSON.parse(JSON.stringify(Object.assign({},S,{cos:S.cos.map(c=>({id:c.id,name:c.name,sector:c.sector,risk:S.cfg.labels?riskLabel(c.vol):''})),paper:(S.paper||[]).map(n=>{const m=Object.assign({},n);delete m.real;delete m.mag;return m})})))}
+/* ----- kick votes: a player who has not pressed Ready for 30 seconds can be voted out; 3 votes, the starter's included ----- */
+const KV_WAIT=30000, KV_NEED=3;
+const kvVoters=t=>H.players.filter(q=>q.connected&&!q.bot&&q.pid!==t.pid);
+function kvCheck(){ /* the vote ends by itself when the player readies up, leaves, or the stage moves on */
+  const kv=H.kv; if(!kv)return null;
+  const t=H.players.find(x=>x.pid===kv.pid), S=H.S;
+  if(!t||!t.connected||t.tr||H.mode!=='game'||!S||kv.key!==H.mode+S.phase+S.rolls){H.kv=null;return null}
+  return {pid:kv.pid,name:t.name,n:kv.votes.size,by:[...kv.votes]};
+}
+function kvStart(p,pid){
+  if(H.offline||H.sim||H.mode!=='game'||H.kv||p.bot||!p.connected)return;
+  const S=H.S, t=H.players.find(x=>x.pid===pid);
+  if(!t||t===p||t.bot||!t.connected||t.tr||!(S.phase==='trade'||S.phase==='final'))return;
+  if(!t.wk||Date.now()-t.wt<KV_WAIT||kvVoters(t).length<KV_NEED)return;
+  H.kv={pid:t.pid,votes:new Set([p.pid]),key:H.mode+S.phase+S.rolls};
+}
+function kvVote(p){
+  const kv=kvCheck()&&H.kv; if(!kv||p.bot||!p.connected||p.pid===kv.pid)return;
+  kv.votes.add(p.pid);
+  if(kv.votes.size>=KV_NEED){
+    const t=H.players.find(x=>x.pid===kv.pid); H.kv=null; if(!t)return;
+    SFX.play('kick');
+    if(t.conn!==null)Net.send(t.conn,{t:'kicked',why:'The other players voted to remove you for taking too long to get ready.'});
+    setTimeout(()=>{if(H&&H.players.indexOf(t)>=0)dropPlayer(t)},250); /* let the note arrive before the line is cut */
+  }
+}
 function snap(){
   const S=H.S;
-  return {off:!!H.offline,sim:!!H.sim,hostPid:H.hostPid||1,mode:H.mode,name:H.name,pw:!!H.pw,pub:!!H.pub,total:H.total,cfg:H.cfg,seq:H.seq,board:H.board,
-    players:H.players.map(p=>({bot:p.bot?p.bot.k:'',pid:p.pid,name:p.name,av:p.av|0,ready:p.ready,here:p.here,connected:p.connected,tr:p.tr})),
+  return {off:!!H.offline,sim:!!H.sim,hostPid:H.hostPid||1,heir:(H.sim||H.offline)?0:((q=>q?q.pid:0)(heirOf(H.players.find(p=>p.pid===(H.hostPid||1))))),mode:H.mode,name:H.name,pw:!!H.pw,pub:!!H.pub,total:H.total,cfg:H.cfg,seq:H.seq,board:H.board,
+    players:H.players.map(p=>({bot:p.bot?p.bot.k:'',pid:p.pid,name:p.name,av:p.av|0,ready:p.ready,here:p.here,connected:p.connected,tr:p.tr,w:(H.mode==='game'&&p.wk&&!p.tr&&!p.bot&&p.connected)?Math.max(0,Date.now()-p.wt):0})),
+    kv:kvCheck(),
     S:S?cleanS(S):null,roller:S&&S.players[S.rollerIdx]?S.players[S.rollerIdx].pid:0};
 }
-function pushState(){const s=snap();Net.broadcast({t:'state',s});applySnap(s);botTick()}
+function pushState(){const s=snap();Net.broadcast({t:'state',s});applySnap(s);botTick();bakTick()}
 const AV_N=8, avOk=v=>Number.isInteger(v)&&v>=0&&v<AV_N?v:0;
 function hostStartRoom(name,pw,pub){
-  H={name,pw,pub,mode:'lobby',players:[{pid:1,name:settings.username,av:avOk(settings.avatar),conn:null,ready:false,here:true,connected:true,tr:false,seen:0}],total:rollsPick,cfg:cfgPick,S:null,board:null,seq:0,pending:null,nextPid:2};
+  H={name,pw,pub,hostPid:1,mode:'lobby',players:[{pid:1,name:settings.username,av:avOk(settings.avatar),conn:null,ready:false,here:true,connected:true,tr:false,seen:0}],total:rollsPick,cfg:cfgPick,S:null,board:null,seq:0,pending:null,nextPid:2};
   Object.assign(MP,{active:true,isHost:true,pid:1,conn:null,ended:false});
   return Net.host().then(()=>{MP.code=Net.code;pushState();if(pub){pubBeat();H.pubTimer=setInterval(pubBeat,LIST_BEAT)}}).catch(e=>{H=null;MP.active=false;MP.isHost=false;throw e});
 }
@@ -2012,6 +2251,8 @@ function act(p,m){
     const sp=S.players.find(x=>x.pid===p.pid);
     if(sp&&Number.isInteger(m.i)&&S.cos[m.i]&&[1,5,10,'max'].indexOf(m.q)>=0)(m.t==='buy'?buy:sell)(S,sp,m.i,m.q);
   }
+  else if(m.t==='kvstart'){kvStart(p,m.pid)}
+  else if(m.t==='kvvote'){kvVote(p)}
   else if(m.t==='roll'){if(g&&S.phase==='roll'&&S.players[S.rollerIdx].pid===p.pid)hostRoll();return}
   else if(m.t==='anim'){if(H.pending&&m.seq===H.seq){H.pending.delete(p.pid);if(!H.pending.size)hostAdvance()}return}
   hostCheck();pushState();
@@ -2045,6 +2286,7 @@ function hostRoll(){
   const r=fut?withSeed(fut.seed,()=>mpRoll(H.S)):mpRoll(H.S), seq=++H.seq; /* same seed the bots peeked with, so a good bot move really is good */
   H.pending=new Set(H.players.filter(p=>p.connected&&!p.bot).map(p=>p.pid));
   const msg={t:'roll',seq,n:r.n,steps:r.steps,event:r.event,s:snap()};
+  bakNow(); /* the next host gets the finished roll before anyone sees it, so a crash mid-roll never changes the result */
   Net.broadcast(msg);playRollMP(msg);
   setTimeout(()=>{if(H&&H.pending&&H.seq===seq)hostAdvance()},40000); /* shortcut: a stuck player is skipped after 40s, not told why */
 }
@@ -2074,6 +2316,7 @@ function hostTimers(){
 }
 setInterval(hostTimers,1000);
 function dropPlayer(p){
+  if(!H.offline&&p.pid===(H.hostPid||1)){const n=heirOf(p);if(n)H.hostPid=n.pid} /* the host leaves: the next player who joined takes the room */
   if(p.conn!==null)Net.close(p.conn);
   if(H.mode==='game'){p.conn=null;p.connected=false;p.tr=false;if(H.pending)H.pending.delete(p.pid)}
   else H.players=H.players.filter(x=>x!==p);
@@ -2088,8 +2331,14 @@ function clientMsg(m){
   else if(m.t==='state')applySnap(m.s);
   else if(m.t==='roll')playRollMP(m);
   else if(m.t==='closed')lost('The host closed the game.');
-  else if(m.t==='kicked')lost('The host removed you from the room.');
+  else if(m.t==='moved')MP.mig=String(m.name||'Someone').slice(0,16); /* the host left and handed the room to this player: reconnect to them */
+  else if(m.t==='host')takeOver(m.h,m.code);
+  else if(m.t==='bak'&&m.h&&Array.isArray(m.h.players))MP.bak={h:m.h,code:m.code};
+  else if(m.t==='kicked')lost(m.why||'The host removed you from the room.');
 }
+function notice(title,text){$('#ntT').textContent=title;$('#ntS').textContent=text;$('#noticePop').hidden=false;SFX.play('back');try{$('#ntOk').focus({preventScroll:true})}catch(e){}}
+$('#ntOk').addEventListener('click',()=>{$('#noticePop').hidden=true});
+$('#noticePop').addEventListener('click',e=>{if(e.target.id==='noticePop')$('#noticePop').hidden=true});
 function tryJoin(code,pw){
   $('#jErr').textContent='Joining…';
   const tok=Math.random().toString(36).slice(2)+Date.now().toString(36);
@@ -2098,24 +2347,27 @@ function tryJoin(code,pw){
     Net.send(id,{t:'join',name:settings.username,av:settings.avatar,pw,tok,did:myDid()});
     return new Promise((ok,no)=>{MP.wait={ok,no};setTimeout(()=>{if(MP.wait){MP.wait=null;no('The host did not answer.')}},4000)});
   }).then(()=>{$('#jErr').textContent=''}).catch(r=>{
-    $('#jErr').textContent=String((r&&r.message)||r||'Could not join.');
+    const msg=String((r&&r.message)||r||'Could not join.');
+    if(/\bfull\b/i.test(msg)){$('#jErr').textContent='';notice('Game is full','That game already has '+MAX_PLAYERS+' players. Try another one.')}
+    else $('#jErr').textContent=msg;
     if(MP.conn!=null){Net.close(MP.conn);MP.conn=null}
   });
 }
 /* connection to the host dropped: keep the screen, retry with the same token for about a minute, then give up */
-const RC_MAX=14;
+const RC_MAX=18;
 function reconnect(){
-  if(!MP.last||MP.rc)return MP.rc?0:lost('Connection to the host was lost.');
-  const rc=MP.rc={n:0}; MP.conn=null; banner('Connection lost. Reconnecting…');
+  if(!MP.last||MP.rc)return MP.rc?0:lost('The server crashed.');
+  const rc=MP.rc={n:0}; MP.conn=null; banner(MP.mig?MP.mig+' is taking over as host…':'Connection lost. Reconnecting…');
   (function again(){
     if(MP.rc!==rc)return;
-    if(rc.n++>=RC_MAX)return lost('Could not reconnect to the host.');
+    if(rc.n++>=RC_MAX)return lost('The server crashed.');
+    if(rc.n>3&&MP.bak&&MP.snap&&MP.snap.heir===MP.pid&&!MP.snap.sim&&!MP.snap.off)return takeOver(MP.bak.h,MP.bak.code,true); /* the host is gone and I am next in line */
     Net.connect(MP.last.code).then(id=>{
       if(MP.rc!==rc){Net.close(id);return}
       MP.conn=id;MP.seen=Date.now();
       Net.send(id,{t:'join',name:settings.username,av:settings.avatar,pw:MP.last.pw,tok:MP.last.tok,did:myDid()});
       return new Promise((ok,no)=>{MP.wait={ok,no};setTimeout(()=>{if(MP.wait&&MP.wait.no===no){MP.wait=null;no(new Error('The host did not answer.'))}},6000)});
-    }).then(()=>{if(MP.rc===rc){MP.rc=null;banner('')}}).catch(r=>{
+    }).then(()=>{if(MP.rc===rc){MP.rc=null;MP.mig='';banner('')}}).catch(r=>{
       if(MP.rc!==rc)return;
       if(typeof r==='string')return lost(r); /* the host said no, e.g. the game moved on */
       if(MP.conn!=null){Net.close(MP.conn);MP.conn=null}
@@ -2127,13 +2379,13 @@ function banner(t){const b=$('#netBanner');b.textContent=t||'';b.hidden=!t}
 /* heartbeat every 5s: a client with no word from the host for 16s reconnects; the host drops a player silent for 16s (a dead seat in a game is kept for rejoin) */
 setInterval(()=>{
   if(!MP.active)return;
-  if(MP.isHost&&H){const now=Date.now();H.players.forEach(p=>{if(p.pid!==1&&p.connected&&p.conn!==null&&now-p.seen>16000)dropPlayer(p)})}
+  if(MP.isHost&&H){const now=Date.now();H.players.forEach(p=>{if(p.pid!==MP.pid&&p.connected&&p.conn!==null&&now-p.seen>16000)dropPlayer(p)})}
   else if(MP.conn!=null&&!MP.rc){Net.send(MP.conn,{t:'ping'});if(Date.now()-MP.seen>16000){const id=MP.conn;Net.close(id);reconnect()}}
 },5000);
 function resetMp(){
   pubStop();
-  if(H){H.players.forEach(p=>clearTimeout(p.plan));clearTimeout(H.rollPlan);clearTimeout(H.joinPlan);clearTimeout(H.startPlan)}
-  Object.assign(MP,{active:false,isHost:false,pid:0,conn:null,snap:null,animating:false,next:null,wait:null,rc:null,last:null,code:'',pc:undefined,roster:null});
+  if(H){H.players.forEach(p=>clearTimeout(p.plan));clearTimeout(H.rollPlan);clearTimeout(H.joinPlan);clearTimeout(H.startPlan);clearTimeout(H.leavePlan);clearTimeout(H.bakT)}
+  Object.assign(MP,{active:false,isHost:false,pid:0,conn:null,snap:null,animating:false,next:null,wait:null,rc:null,last:null,code:'',pc:undefined,roster:null,hostSeen:undefined,mig:'',bak:null});
   banner('');H=null;anim={};clearTimeout(popTimer);
   S=newGame([settings.username],rollsPick,cfgPick);
 }
@@ -2141,9 +2393,69 @@ function lost(msg){SFX.play('error');resetMp();show('mp');$('#mpMsg').textConten
 function leaveRoom(to){
   if(H&&H.sim){resetMp();show('mpjoin');return}
   if(H&&H.offline){resetMp();show(typeof to==='string'?to:screen==='game'?'menu':'bots');return}
-  if(MP.isHost&&H){Net.broadcast({t:'closed'});setTimeout(()=>Net.stopHost(),300)}
+  if(MP.isHost&&H){
+    const heir=heirOf(H.players.find(p=>p.pid===MP.pid));
+    if(!(heir&&passRoom(heir))){Net.broadcast({t:'closed'});setTimeout(()=>Net.stopHost(),300)} /* nobody to hand it to: the room closes */
+  }
   else if(MP.conn!=null)Net.close(MP.conn);
   resetMp();show('mp');
+}
+/* ----- the host leaves a real room: it goes to the next player who joined, same code, same game ----- */
+/* the whole room as plain data. leaving=true drops the host from it (in a game their seat stays, empty). */
+function packOf(me,leaving){
+  const rec=p=>({pid:p.pid,name:p.name,av:p.av|0,ready:!!p.ready,here:!!p.here,connected:!!p.connected,tr:!!p.tr,tok:p.tok||null,did:p.did||''});
+  const list=H.players.filter(p=>!leaving||p!==me||H.mode==='game').map(p=>leaving&&p===me?Object.assign(rec(p),{connected:false,tr:false,ready:false}):rec(p));
+  return JSON.parse(JSON.stringify({name:H.name,pw:H.pw,pub:H.pub,hostPid:H.hostPid||1,mode:H.mode,total:H.total,cfg:H.cfg,S:H.S,board:H.board,seq:H.seq,nextPid:H.nextPid,ban:H.ban?[...H.ban]:[],players:list}));
+}
+/* Live backup: the next in line quietly holds a copy of the room (at most every 1.5s, at once when the next in line changes).
+   If the host's connection dies without a goodbye (app killed, internet lost), that player takes the room over from the copy. */
+function bakTick(){
+  const h=H; if(!h||h.sim||h.offline||h.bakT)return;
+  const me=h.players.find(p=>p.pid===(h.hostPid||1)), heir=heirOf(me); if(!heir)return;
+  const wait=heir.pid!==h.bakTo?0:Math.max(0,1500-(Date.now()-(h.bakAt||0)));
+  h.bakT=setTimeout(()=>{h.bakT=0;if(H===h)bakNow()},wait);
+}
+function bakNow(){
+  const h=H; if(!h||h.sim||h.offline)return;
+  const m=h.players.find(p=>p.pid===(h.hostPid||1)), q=heirOf(m); if(!q||q.conn===null)return;
+  h.bakAt=Date.now();h.bakTo=q.pid;
+  Net.send(q.conn,{t:'bak',h:packOf(m,false),code:MP.code});
+}
+function passRoom(heir){
+  const me=H.players.find(p=>p.pid===MP.pid);
+  if(!me||!heir||heir.conn===null)return false;
+  if(H.pending)hostAdvance(); /* settle a roll in progress first, so the new host starts from a calm state */
+  Net.send(heir.conn,{t:'host',h:packOf(me,true),code:MP.code});
+  H.players.forEach(p=>{if(p!==me&&p!==heir&&p.connected&&p.conn!==null)Net.send(p.conn,{t:'moved',name:heir.name})});
+  setTimeout(()=>Net.stopHost(),900); /* let the hand-over arrive, then free the room code for the new host */
+  return true;
+}
+function takeOver(pk,code,abrupt){
+  if(!MP.active||MP.isHost||!pk||!Array.isArray(pk.players)||!/^[A-Z0-9]{5}$/.test(String(code)))return;
+  const old=MP.conn, now=Date.now(), me=MP.pid, was=MP.last;
+  MP.rc=null;MP.wait=null;MP.last=null;MP.mig='';MP.conn=null;
+  H={name:String(pk.name||'Room').slice(0,24),pw:pk.pw||'',pub:!!pk.pub,hostPid:me,mode:pk.mode,total:pk.total,cfg:pk.cfg,S:pk.S||null,board:pk.board||null,seq:pk.seq|0,pending:null,nextPid:(pk.nextPid|0)||pk.players.length+2,ban:new Set(pk.ban||[]),
+    /* the others get about half a minute to reconnect to the new host with their saved token before they count as gone */
+    players:pk.players.map(p=>Object.assign({},p,{conn:p.pid===me?null:(p.connected?-1:null),seen:now+(abrupt?20000:12000)}))};
+  if(abrupt){ /* the old host vanished without a goodbye: their seat stays in a game, in a lobby it is removed */
+    const o=H.players.find(p=>p.pid===(pk.hostPid||1));
+    if(o&&o.pid!==me){if(H.mode==='game'){o.connected=false;o.conn=null;o.tr=false}else H.players=H.players.filter(p=>p!==o)}
+  }
+  Object.assign(MP,{isHost:true,code,conn:null});
+  if(old!=null)Net.close(old);
+  banner('You are taking over as host…');
+  Net.host(code).then(()=>{
+    if(!H||!MP.isHost||MP.code!==code)return;
+    banner('');MP.bak=null;
+    if(H.pub){pubBeat();H.pubTimer=setInterval(pubBeat,LIST_BEAT)}
+    hostCheck();
+    if(H.S&&H.S.phase==='anim')hostAdvance(); else pushState(); /* a backup taken mid-roll: finish that roll first */
+  }).catch(e=>{
+    if(abrupt&&was){ /* could not claim the code (the old host may still be alive): go back to being a player and keep trying to reconnect */
+      H=null;Object.assign(MP,{isHost:false,code:'',conn:null,last:was});reconnect();return;
+    }
+    lost('The server crashed.');
+  });
 }
 /* small red join / leave notes, from who is connected now versus the last snapshot (the first snapshot of a room only sets the baseline) */
 function feedMsg(text){
@@ -2156,12 +2468,16 @@ function feedMsg(text){
 }
 function trackRoster(s){
   if(s.off)return;
+  {const hp=s.hostPid||1, hn=s.players.find(p=>p.pid===hp); /* the host role moved: say so */
+   if(MP.hostSeen!==undefined&&MP.hostSeen!==hp&&hn)feedMsg(hp===MP.pid?'You are now the host':hn.name+' is now the host');
+   MP.hostSeen=hp}
   const now=new Map(s.players.filter(p=>p.connected).map(p=>[p.pid,p.name])), prev=MP.roster; MP.roster=now;
   if(!prev)return;
   now.forEach((n,pid)=>{if(pid!==MP.pid&&!prev.has(pid))feedMsg(n+' joined')});
   prev.forEach((n,pid)=>{if(pid!==MP.pid&&!now.has(pid))feedMsg(n+' left')});
 }
 function applySnap(s){
+  s._at=Date.now();
   trackRoster(s);
   if(MP.animating){MP.next=s;return}
   MP.snap=s; if(s.S)S=s.S;
@@ -2225,7 +2541,7 @@ function startJoin(){
 }
 addEventListener('offline',()=>{botNet=false;if(screen==='mpjoin'&&listReady)renderGames()});
 function renderGames(){
-  const l=pubList=realList.concat(botNet&&navigator.onLine!==false?brList(Date.now()):[]).slice(0,LIST_MAX); /* real rooms first, 20 at most */
+  const l=pubList=realList.concat(botNet&&navigator.onLine!==false?brList(Date.now()):[]).sort((a,b)=>b.k-a.k||a.n.localeCompare(b.n,undefined,{sensitivity:'base'})||a.c.localeCompare(b.c)).slice(0,LIST_MAX); /* most players first, same count A to Z, 20 at most */
   const html=l.map(g=>{const full=g.k>=g.m,off=g.g||full;
     return '<button type="button" class="game" data-c="'+esc(g.c)+'"'+(off?' disabled':'')+'><span><b>'+esc(g.n)+'</b><small>'+g.k+'/'+g.m+' players'+(g.g?' · in progress':full?' · full':'')+(g.cr?' · custom rules':'')+'</small></span>'+(g.p?'<span class="tag">PASSWORD</span>':'')+'</button>'}).join('')||'<p class="muted">No public games right now. Create one, or join a private game with its code.</p>';
   if(html!==lastGames){lastGames=html;$('#gameList').innerHTML=html} /* only touch the list when it changed, so taps are never lost */
@@ -2244,7 +2560,7 @@ function renderLobby(){
     return '<li><span class="pav">'+avatarSvg(p.av|0)+'</span><b>'+esc(p.name)+'</b>'+(p.pid===(s.hostPid||1)&&!s.off?'<span class="tag">HOST</span>':'')+(p.bot&&s.off?'<span class="tag">BOT · '+BOTN[p.bot]+'</span>':'')+(p.pid===MP.pid?'<span class="tag">YOU</span>':'')+'<span class="pst'+(p.ready&&p.here?' ok':'')+'">'+st+'</span>'+kickBtn(p)+'</li>';
   }).join('');
   $('#lRules').textContent=s.total+' rolls · '+money(c.cash)+' to start · '+c.companies+' stocks · '+(eventsOn(c)?'event '+everyText(c.every):'no events')+(cfgIsDefault(c)?'':' · custom rules');
-  $('#lLeave').textContent=s.off?'‹ Back':amHost()?'‹ Close room':'‹ Leave';
+  $('#lLeave').textContent=s.off?'‹ Back':'‹ '+leaveText();
   $('#lReady').hidden=!!s.off;
   $('#lCustom').hidden=!amHost();
   $('#lReady').textContent=me.ready?'Not ready':'Ready';
@@ -2295,9 +2611,10 @@ $('#gameList').addEventListener('click',e=>{
   const g=pubList.find(x=>x.c===b.dataset.c); if(!g)return;
   if(g.bot){
     const now=botNet&&navigator.onLine!==false?brList(Date.now()).find(x=>x.c===g.c):null; /* the list on screen may be hours old: ask the simulation how the room looks now */
-    if(!now){$('#jErr').textContent='That game already started or was closed.';return}
-    if(now.g){$('#jErr').textContent='That game already started.';return}
-    $('#jErr').textContent='';return startPractice(now);
+    $('#jErr').textContent='';
+    if(!now){const w=g.gen===undefined?'closed':brWhy(g,Date.now());return w==='full'?notice('Game is full','That game filled up while you were looking. Try another one.'):notice('Game closed','That game has already started or was closed.')}
+    if(now.g)return notice('Game in progress','That game has already started.');
+    return startPractice(now);
   }
   if(g.p&&!$('#jPw').value){$('#jErr').textContent='Enter the password first.';$('#jPw').focus();return}
   tryJoin(g.c,$('#jPw').value);
@@ -2309,7 +2626,7 @@ function joinCode(){
   const c=$('#jCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(c.length!==CODE_LEN){$('#jErr').textContent='Type the '+CODE_LEN+'-letter room code.';return}
   const br=botNet&&navigator.onLine!==false&&!realList.some(r=>r.c===c)&&brList(Date.now()).find(r=>r.c===c);
-  if(br){if(br.g){$('#jErr').textContent='That game already started.';return}$('#jErr').textContent='';return startPractice(br)}
+  if(br){$('#jErr').textContent='';if(br.g)return notice('Game in progress','That game has already started.');return startPractice(br)}
   tryJoin(c,$('#jPw').value);
 }
 $('#jCodeGo').addEventListener('click',joinCode);
@@ -2360,15 +2677,6 @@ $('#options').addEventListener('click',e=>{
 $('#optVol').addEventListener('input',e=>{settings.volume=Number(e.target.value)/100;AUD.sync();$('#optVolVal').textContent=e.target.value+'%'});
 $('#optVol').addEventListener('change',()=>{saveSettings();SFX.play('buy')});
 $('#oBack').addEventListener('click',()=>{const f=optFrom;optFrom='menu';show(f)});
-$('#optReset').addEventListener('click',()=>{
-  const b=$('#optReset');
-  if(!b.dataset.armed){b.dataset.armed='1';b.textContent='Tap again to reset';clearTimeout(resetTimer);resetTimer=setTimeout(resetScoresLabel,3000);return}
-  clearTimeout(resetTimer);
-  try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&k.indexOf(BEST_KEY)===0)localStorage.removeItem(k)}}catch(e){}
-  delete b.dataset.armed;b.textContent='Best scores cleared';
-  resetTimer=setTimeout(resetScoresLabel,2000);
-});
-
 /* the username button is the editor: tap it and type; Enter or tapping away saves, Escape cancels */
 function saveName(){
   const v=$('#uInput').value.replace(/\s+/g,' ').trim();
@@ -2418,7 +2726,7 @@ $('#tools').addEventListener('click',e=>{
   syncQty();
   renderBoard();
 });
-$('#die').addEventListener('click',()=>{if(MP.active){if(!$('#die').disabled)mpSend({t:'roll'})}else doRoll()});
+$('#die').addEventListener('click',()=>{if(MP.active){if(dockInfo().canRoll)mpSend({t:'roll'});else if(S.phase!=='rolling'&&S.phase!=='anim'&&!MP.animating)playersOpen()}else doRoll()});
 $('#go').addEventListener('click',()=>{
   if(MP.active){
     const ph=S.phase;
@@ -2452,9 +2760,9 @@ try{
 addEventListener('load',()=>{const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap';document.head.appendChild(l)});
 
 function myDid(){if(!settings.did){settings.did=Math.random().toString(36).slice(2)+Date.now().toString(36);saveSettings()}return settings.did}
-function kickBtn(p){return amHost()&&!(H&&H.offline)&&p.pid!==1&&p.connected?'<button type="button" class="kick" data-kick="'+p.pid+'"'+(kickArm===p.pid?' data-armed="1"':'')+'>'+(kickArm===p.pid?'Sure?':'Kick')+'</button>':''}
+function kickBtn(p){return amHost()&&!(H&&H.offline)&&p.pid!==MP.pid&&p.connected?'<button type="button" class="kick" data-kick="'+p.pid+'"'+(kickArm===p.pid?' data-armed="1"':'')+'>'+(kickArm===p.pid?'Sure?':'Kick')+'</button>':''}
 function kickPlayer(pid){
-  const p=H&&H.players.find(x=>x.pid===pid); if(!p||pid===1)return;
+  const p=H&&H.players.find(x=>x.pid===pid); if(!p||pid===MP.pid)return;
   H.ban=H.ban||new Set(); if(p.did)H.ban.add(p.did); if(p.tok)H.ban.add(p.tok);
   SFX.play('kick');
   if(p.conn!==null)Net.send(p.conn,{t:'kicked'});
@@ -2468,22 +2776,24 @@ document.addEventListener('click',e=>{
   else{kickArm=pid;kickT=setTimeout(()=>{kickArm=0;renderLobby();renderPause()},3000)}
   renderLobby();renderPause();
 });
+let pzKickOpen=false;
 function renderPause(){
   if($('#pause').hidden)return;
   const ul=$('#pzPlayers'), s=MP.snap, on=MP.active&&amHost()&&!!s&&!s.off; /* no player list offline: bots are not kicked */
-  ul.hidden=!on; if(!on)return;
+  $('#pzKick').hidden=!on; ul.hidden=!(on&&pzKickOpen); if(!on||!pzKickOpen)return;
   ul.innerHTML=s.players.filter(p=>p.pid!==MP.pid&&p.connected).map(p=>'<li><span class="pav">'+avatarSvg(p.av|0)+'</span><b>'+esc(p.name)+'</b><span class="pst"></span>'+kickBtn(p)+'</li>').join('')||'<li><span class="pst">No other players.</span></li>';
 }
 function pauseOpen(){
   SFX.play('pause');
   const off=!!(H&&H.offline);
   $('#pzS').textContent=off?'The bots keep playing.':MP.active?'Other players keep playing.':'Your game is waiting.';
-  $('#pzQuit').textContent=off?'Quit':MP.active?(amHost()?'Close room':'Leave'):'Quit';
-  $('#pause').hidden=false; renderPause();
+  $('#pzQuit').textContent=off?'Quit':MP.active?leaveText():'Quit';
+  pzKickOpen=false; $('#pause').hidden=false; renderPause();
   try{$('#pzResume').focus({preventScroll:true})}catch(e){}
 }
 function pauseShut(){$('#pause').hidden=true}
 $('#pzResume').addEventListener('click',pauseShut);
+$('#pzKick').addEventListener('click',()=>{pzKickOpen=!pzKickOpen;SFX.play('tap');renderPause()});
 $('#pzOptions').addEventListener('click',()=>{optFrom='game';show('options')});
 $('#pzQuit').addEventListener('click',()=>{pauseShut();if(MP.active)leaveRoom();else{resetQuit();show('menu')}});
 $('#pause').addEventListener('click',e=>{if(e.target.id==='pause')pauseShut()});
@@ -2491,6 +2801,8 @@ $('#pause').addEventListener('click',e=>{if(e.target.id==='pause')pauseShut()});
 function onBack(){
   if(!(screen==='menu'&&$('#avPop').hidden&&$('#pause').hidden))SFX.play('back');
   if(!$('#avPop').hidden)return avShut();
+  if(!$('#noticePop').hidden){$('#noticePop').hidden=true;return}
+  if(!$('#plPop').hidden)return plShut();
   if(!$('#pause').hidden)return pauseShut();
   if(!$('#pop').hidden)return;
   switch(screen){
@@ -2566,11 +2878,12 @@ function botTick(){
   if(h.mode==='lobby'){if(h.sim)return simLobby(h);let ch=false;h.players.forEach(p=>{if(p.bot&&!p.ready){p.ready=true;ch=true}});if(ch)pushState();return}
   if(h.mode==='end'){if(h.sim)return simEnd(h);let ch=false;h.players.forEach(p=>{if(p.bot&&!p.here){p.here=true;p.ready=false;ch=true}});if(ch){hostCheck();pushState()}return}
   if(h.mode!=='game')return;
+  const readyWait=b=>settings.speed==='instant'?botMs(2000,5000):Math.max(2500,botMs(3000,8000)*(h.sim?b.pace/3:1)); /* think for 3-8 seconds after the last trade, never under 2.5 */
   const S=h.S, T=(b,x,y)=>botMs(x,y)*(h.sim?b.pace*(Math.random()<.15?2:1)/2:1); /* practice-room bots vary by bot and sometimes stall; /2 = twice as fast as before */
   if(S.phase==='trade'||S.phase==='final'){
     h.players.forEach(bot=>{
       if(!bot.bot||!bot.connected||bot.tr||bot.plan)return;
-      if(h.sim&&Math.random()<.004&&h.players.filter(q=>q.connected).length>2){ /* rare: a practice-room bot quits mid-game, always leaving you and at least one other player */
+      if(h.sim&&Math.random()<.011&&h.players.filter(q=>q.connected).length>2){ /* now and then a practice-room bot quits mid-game (about 2.5x as often as before), always leaving you and at least one other player; if it was the host, the room passes to the next player who joined */
         bot.plan=setTimeout(()=>{
           bot.plan=null;
           if(H!==h||h.mode!=='game'||!bot.connected||h.players.indexOf(bot)<0||h.players.filter(q=>q.connected).length<=2||(h.S.phase!=='trade'&&h.S.phase!=='final'))return;
@@ -2581,7 +2894,7 @@ function botTick(){
       const acts=S.phase==='final'?S.cos.length+1:2+Math.floor(Math.random()*3); let k=0;
       const step=()=>{
         if(!(H===h&&h.mode==='game'&&bot.connected&&!bot.tr&&(h.S.phase==='trade'||h.S.phase==='final'))){bot.plan=null;return}
-        if(k<acts){k++;bot.plan=setTimeout(step,k<acts?T(bot,300,650):botMs(2000,5000));botMove(bot);pushState()} /* after the last trade a bot thinks for 2-5 seconds before pressing Ready */
+        if(k<acts){k++;bot.plan=setTimeout(step,k<acts?T(bot,300,650):readyWait(bot));botMove(bot);pushState()} /* after the last trade a bot thinks for 2-5 seconds before pressing Ready */
         else{bot.plan=null;act(bot,{t:'tready',on:true})}
       };
       bot.plan=setTimeout(step,T(bot,700,2000));
@@ -2592,7 +2905,7 @@ function botTick(){
   }
 }
 function startBots(){
-  if(H){H.players.forEach(p=>clearTimeout(p.plan));clearTimeout(H.rollPlan);clearTimeout(H.joinPlan);clearTimeout(H.startPlan)}
+  if(H){H.players.forEach(p=>clearTimeout(p.plan));clearTimeout(H.rollPlan);clearTimeout(H.joinPlan);clearTimeout(H.startPlan);clearTimeout(H.leavePlan)}
   const lv=BOT_LV.find(l=>l.k===settings.botLv)||BOT_LV[2], n=settings.bots;
   const me={pid:1,name:settings.username,av:avOk(settings.avatar),conn:null,ready:true,here:true,connected:true,tr:false,seen:0};
   const names=BOT_NAMES.slice().sort(()=>Math.random()-.5), avs=[0,1,2,3,4,5,6,7].filter(a=>a!==me.av).sort(()=>Math.random()-.5);
@@ -2719,6 +3032,13 @@ function brOcc(R,u){
   }
   return {k};
 }
+/* why a room from an old list is no longer there: it filled up (its game started) or its host closed it */
+function brWhy(g,now){
+  const L=brLane(g.lane), R=brRoom(g.lane,g.gen), u=Math.min(now-L.O-g.gen*L.P,R.end);
+  if(brGone[g.c]&&!R.g)return 'started';
+  if(!R.g&&!R.none&&u>R.a&&brOcc(R,u-R.a).full)return 'full';
+  return 'closed';
+}
 function brList(now){
   const out=[];
   for(let l=0;l<BR_LANES;l++){
@@ -2726,7 +3046,7 @@ function brList(now){
     if(R.none||u<R.a||u>=R.end||brGone[R.pub.c])continue;
     let k=R.k0;
     if(!R.g){const o=brOcc(R,u-R.a);if(o.full)continue;k=o.k} /* full rooms are gone: their game started */
-    out.push(Object.assign({},R.pub,{k,lane:l,t:L.O+gen*L.P+R.a}));
+    out.push(Object.assign({},R.pub,{k,lane:l,gen,t:L.O+gen*L.P+R.a}));
   }
   out.sort((x,y)=>x.t-y.t||x.lane-y.lane);
   const seen=new Set();
@@ -2748,7 +3068,7 @@ function startPractice(g){
   H={name:g.n,pw:'',pub:false,sim:true,hostPid:1,target:Math.min(MAX_PLAYERS,Math.max(g.k+1,g.target|0)),mode:'lobby',players:[me],total:g.total,cfg:g.cfg,S:null,board:null,seq:0,pending:null,nextPid:g.k+2};
   MP.pid=me.pid;
   H.players=Array.from({length:g.k},(_,i)=>simBot(H,i+1,g.nm[i],g.lv[i%4])).concat(me);
-  Object.assign(MP,{active:true,isHost:true,pid:me.pid,conn:null,ended:false,code:g.c,roster:null});
+  Object.assign(MP,{active:true,isHost:true,pid:me.pid,conn:null,ended:false,code:g.c,roster:null,hostSeen:undefined,mig:''});
   pushState();
 }
 function simLobby(h){
@@ -2757,11 +3077,20 @@ function simLobby(h){
     h.joinPlan=null;
     if(H!==h||h.mode!=='lobby'||h.players.length>=h.target)return;
     const bs=h.players.filter(p=>p.bot);
-    if(bs.length>1&&Math.random()<.1){const b=choice(bs);clearTimeout(b.plan);dropPlayer(b);return} /* now and then someone leaves the lobby before the game starts */
+    if(bs.length>1&&Math.random()<.2){const b=choice(bs);clearTimeout(b.plan);dropPlayer(b);return} /* now and then someone leaves the lobby before the game starts, the host included */
     const nm=freshName(h.players.map(p=>p.name).concat(settings.username));
     h.players.push(simBot(h,h.nextPid++,nm,BOT_LV[rint(4)]));pushState();
   },joinGap());
-  if(h.players.length>=h.target&&h.players.every(p=>p.here&&p.ready)&&!h.startPlan)h.startPlan=setTimeout(()=>{h.startPlan=null;if(H===h&&h.mode==='lobby')hostStart()},botMs(2000,6000));
+  /* a bot host starts the game by itself; when you are the host, the room waits for you to press Start */
+  if(h.players.length>=h.target&&h.hostPid!==MP.pid&&h.players.every(p=>p.here&&p.ready)&&!h.startPlan)h.startPlan=setTimeout(()=>{h.startPlan=null;if(H===h&&h.mode==='lobby'&&h.hostPid!==MP.pid&&h.players.length>=h.target)hostStart()},botMs(2000,6000));
+  /* bots also come and go on their own while the room waits (never right before the start), so the host role changes hands now and then */
+  if(h.players.filter(p=>p.bot).length>1&&!h.leavePlan)h.leavePlan=setTimeout(()=>{
+    h.leavePlan=null;
+    if(H!==h||h.mode!=='lobby')return;
+    const bs=h.players.filter(p=>p.bot&&p.connected);
+    if(!h.startPlan&&bs.length>1&&Math.random()<.45){const b=choice(bs);clearTimeout(b.plan);b.plan=null;dropPlayer(b);return}
+    simLobby(h);
+  },botMs(6000,15000));
 }
 /* ---------- time away: a practice room keeps going while the app is minimised or the screen is off ----------
    Every second hostTimers calls simBeat. If the gap since the last beat is long, the app was suspended and the room "ran" meanwhile:
@@ -2778,7 +3107,7 @@ document.addEventListener('resume',simBeat,false);
 function simCatchUp(gap){
   const h=H, tEnd=Date.now(), t0=tEnd-gap; let rem=gap, guard=0;
   h.players.forEach(p=>{clearTimeout(p.plan);p.plan=null});
-  ['rollPlan','joinPlan','startPlan'].forEach(k=>{clearTimeout(h[k]);h[k]=null});
+  ['rollPlan','joinPlan','startPlan','leavePlan'].forEach(k=>{clearTimeout(h[k]);h[k]=null});
   const bots=()=>h.players.filter(p=>p.bot&&p.connected);
   const wOf=(p,key)=>p.wk===key?Math.max(0,t0+(gap-rem)-p.wt):0;  /* how long this player has already stalled in this stage */
   const hold=(p,key,w)=>{p.wk=key;p.wt=tEnd-(w+rem)};              /* time ran out inside the stage: remember how long they have waited */
@@ -2800,6 +3129,7 @@ function simCatchUp(gap){
       rem-=total;
       while(h.players.length<h.target)addBot();
       bots().forEach(b=>{b.ready=true}); p.ready=true; p.wk='';
+      if(h.hostPid===MP.pid){rem=0;break} /* you host this room: it waits for you to press Start */
       h.S=mpNewGame(h.players,h.total,h.cfg);h.mode='game';h.board=null;brBury(MP.code);h.players.forEach(q=>{q.ready=false;q.tr=false});
     }else if(h.mode==='game'){
       const ph=S.phase;
@@ -2828,4 +3158,126 @@ function simCatchUp(gap){
 function simEnd(h){
   h.players.forEach(p=>{if(p.bot&&!p.here&&!p.plan)p.plan=setTimeout(()=>{p.plan=null;if(H===h&&h.mode==='end'&&!p.here){p.here=true;p.ready=false;hostCheck();pushState()}},botMs(1500,9000))});
 }
+
+/* =====================================================================
+   FIT LAYER: scale + layout picker. Runs after every screen change.
+   1. Picks a base scale from the phone's size and an aspect-ratio layout
+      (ar-tall / ar-std / ar-short / ar-wide).
+   2. Game screen: tries the roomy layout, then the compact one.
+   3. If something still does not fit, it shrinks the whole stage a bit
+      (never below 72%); only then does a screen scroll, and only up/down.
+   4. Menus with spare room are scaled up to fill the screen.
+   ===================================================================== */
+(function(){
+  const root=document.documentElement, stage=document.getElementById('stage');
+  if(!stage)return;
+  const FLOOR=.72;
+  let raf=0, last=0, maxH=0, lastZ=0, lastMode='';
+
+  const activeScreen=()=>stage.querySelector(':scope>.screen:not([hidden]),:scope>#game:not([hidden])');
+  function setZ(z,vw,vh){
+    root.style.setProperty('--z',z.toFixed(4));
+    root.style.setProperty('--lw',(vw/z).toFixed(2)+'px');
+    root.style.setProperty('--lh',(vh/z).toFixed(2)+'px');
+  }
+  function excess(scr){
+    let e=scr.scrollHeight-scr.clientHeight;
+    if(scr.id==='game'){
+      const m=scr.querySelector('main'), r=document.getElementById('results');
+      e=Math.max(e,m.scrollHeight-m.clientHeight);
+      if(r&&!r.hidden)e=Math.max(e,r.scrollHeight-r.clientHeight);
+    }
+    return e>1?e:0;
+  }
+  function shrink(scr,z0,vw,vh){
+    let z=z0; const zmin=Math.max(.5,z0*FLOOR);
+    for(let i=0;i<8;i++){
+      setZ(z,vw,vh);
+      const ex=excess(scr); if(!ex)return z;
+      const H=scr.clientHeight, nz=Math.max(zmin,z*H/(H+ex)*.985);
+      if(nz>=z-.002)break;
+      z=nz;
+    }
+    setZ(z,vw,vh);
+    if(excess(scr))scr.classList.add('scroll-fb');
+    return z;
+  }
+
+  function fit(){
+    raf=0; last=Date.now();
+    const vw=window.innerWidth, vh=window.innerHeight;
+    if(!vw||!vh)return;
+    maxH=Math.max(maxH,vh);
+    const ae=document.activeElement;
+    /* keyboard open: keep the scale, only follow the visible height so the field stays reachable */
+    if(lastZ&&ae&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)&&vh<maxH*.85){
+      root.style.setProperty('--lh',(vh/lastZ).toFixed(2)+'px');
+      return;
+    }
+    const ar=vh/vw; let z0,mode;
+    if(ar>=1.55){mode=ar>=2.05?'tall':ar>=1.8?'std':'short'; z0=Math.min(vw/390,1.6,vh/560)}
+    else{mode='wide'; z0=Math.min(vw/620,vh/460,1.5)}
+    z0=Math.max(.5,z0);
+    if(mode!==lastMode){['tall','std','short','wide'].forEach(m=>root.classList.toggle('ar-'+m,m===mode));lastMode=mode}
+    root.classList.toggle('h-tight',vh/z0<720);
+
+    const scr=activeScreen();
+    if(!scr){setZ(z0,vw,vh);lastZ=z0;return}
+    scr.classList.remove('scroll-fb');
+    let z=z0;
+
+    if(scr.id==='game'){
+      let ok=false;
+      for(const roomy of [true,false]){
+        scr.classList.toggle('g-roomy',roomy);
+        setZ(z0,vw,vh);
+        if(!excess(scr)){ok=true;break}
+      }
+      if(!ok)z=shrink(scr,z0,vw,vh);
+      const dock=scr.querySelector('.dock'); if(dock)scr.style.setProperty('--dockh',dock.offsetHeight+'px');
+    }else{
+      root.classList.add('measuring');
+      setZ(z0,vw,vh);
+      if(excess(scr)){z=shrink(scr,z0,vw,vh)}
+      else{
+        /* spare room: scale up to fill, as long as it still fits */
+        const w=scr.querySelector(':scope>.wrap'), cs=getComputedStyle(scr);
+        const need=(w?w.offsetHeight:0)+parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
+        const f=need>0?scr.clientHeight/need:1;
+        if(f>1.04){
+          const zg=Math.min(z0*Math.min(f,1.28),vw/330);
+          if(zg>z0*1.03){setZ(zg,vw,vh); if(excess(scr))setZ(z0,vw,vh); else z=zg}
+        }
+      }
+      root.classList.remove('measuring');
+    }
+    lastZ=z;
+  }
+  function schedule(){
+    if(raf)return;
+    const wait=Math.max(0,120-(Date.now()-last));
+    raf=requestAnimationFrame(()=>{ if(wait){raf=0;setTimeout(schedule,wait);return} fit() });
+  }
+
+  window.addEventListener('resize',schedule);
+  window.addEventListener('orientationchange',()=>setTimeout(schedule,250));
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',schedule);
+  document.addEventListener('focusout',()=>setTimeout(schedule,200));
+  if(document.fonts){document.fonts.ready.then(schedule);document.fonts.addEventListener&&document.fonts.addEventListener('loadingdone',schedule)}
+  /* re-fit when a screen changes or a list is rebuilt (ignore plain text updates such as the price tween) */
+  new MutationObserver(recs=>{
+    if(recs.some(r=>r.type==='attributes'||(r.target.children&&r.target.children.length)||r.addedNodes.length&&[].some.call(r.addedNodes,n=>n.nodeType===1)))schedule();
+  }).observe(stage,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden']});
+
+  /* small helpers for the game screen: Tape pop-up and the ? help drop-down close when you tap elsewhere */
+  const g=document.getElementById('game'), tb=document.getElementById('tapeBtn');
+  if(tb)tb.addEventListener('click',e=>{e.stopPropagation();const on=g.classList.toggle('tape-open');tb.setAttribute('aria-pressed',String(on))});
+  document.addEventListener('click',e=>{
+    if(g.classList.contains('tape-open')&&!e.target.closest('.tape')){g.classList.remove('tape-open');if(tb)tb.setAttribute('aria-pressed','false')}
+    const hw=g.querySelector('details.how[open]'); if(hw&&!e.target.closest('details.how'))hw.open=false;
+  });
+  new MutationObserver(()=>{if(g.hidden){g.classList.remove('tape-open');const hw=g.querySelector('details.how');if(hw)hw.open=false}}).observe(g,{attributes:true,attributeFilter:['hidden']});
+
+  schedule();
+})();
 </script>
