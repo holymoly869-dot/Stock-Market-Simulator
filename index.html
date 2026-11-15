@@ -695,6 +695,90 @@ html::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .plist li .pav{transition:box-shadow .3s}
 .plist li.gone{opacity:.5}
 @media (prefers-reduced-motion:reduce){#amb svg,.pbar,.pav2,.pn,.pnw,.pcol small,.crown,.rtitle,.rip{animation:none!important}}
+
+/* ===== premium pass: emerald, black and gold. Colours, depth, type and motion only: no layout, spacing or structure changes ===== */
+:root[data-theme="dark"]{--bg:#060E0A;--surface:#0E1A14;--surface-2:#14251C;--line:#23402F;--ink:#EAF2EC;--muted:#8DA797;--accent:#F0B43A;--accent-d:#8E6012;--gold-hi:#FFDB80;--gold-lo:#B77A10;--emerald:#2FE08F;--up:#3FE3A0;--down:#FF6F66;--up-bg:#0E3023;--down-bg:#381614;--die:#F1F3EA;--pip:#07100B;--glow1:rgba(240,180,58,.15);--glow2:rgba(47,224,143,.12);--glass:rgba(7,14,10,.80);--grid:rgba(143,175,155,.065);--lift:inset 0 1px 0 rgba(255,255,255,.075),inset 0 0 0 1px rgba(255,255,255,.012),0 1px 0 rgba(0,0,0,.65),0 16px 26px -18px rgba(0,0,0,.95);--edge:#030705;color-scheme:dark;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#060E0A;--surface:#0E1A14;--surface-2:#14251C;--line:#23402F;--ink:#EAF2EC;--muted:#8DA797;--accent:#F0B43A;--accent-d:#8E6012;--gold-hi:#FFDB80;--gold-lo:#B77A10;--emerald:#2FE08F;--up:#3FE3A0;--down:#FF6F66;--up-bg:#0E3023;--down-bg:#381614;--die:#F1F3EA;--pip:#07100B;--glow1:rgba(240,180,58,.15);--glow2:rgba(47,224,143,.12);--glass:rgba(7,14,10,.80);--grid:rgba(143,175,155,.065);--lift:inset 0 1px 0 rgba(255,255,255,.075),inset 0 0 0 1px rgba(255,255,255,.012),0 1px 0 rgba(0,0,0,.65),0 16px 26px -18px rgba(0,0,0,.95);--edge:#030705;color-scheme:dark;}}
+:root{--gold-hi:#F6CF7A;--gold-lo:#B07814;--emerald:#1E9E68;--surface-2:#EEF2E8;--edge:#5B6A60}
+html{background:var(--bg)}
+body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-feature-settings:"kern","liga"}
+::selection{background:color-mix(in srgb,var(--accent) 38%,transparent)}
+/* backdrop: layered light, a fading grid, grain */
+body::after{
+  background:
+    radial-gradient(760px 460px at 104% -8%,var(--glow1),transparent 62%),
+    radial-gradient(700px 520px at -10% 108%,var(--glow2),transparent 60%),
+    radial-gradient(520px 380px at 50% 46%,color-mix(in srgb,var(--emerald) 6%,transparent),transparent 70%),
+    radial-gradient(130% 90% at 50% 50%,transparent 58%,rgba(0,0,0,.34)),
+    repeating-linear-gradient(0deg,transparent 0 35px,var(--grid) 35px 36px),
+    repeating-linear-gradient(90deg,transparent 0 35px,var(--grid) 35px 36px);
+  -webkit-mask-image:radial-gradient(120% 90% at 50% 42%,#000 55%,rgba(0,0,0,.55));mask-image:radial-gradient(120% 90% at 50% 42%,#000 55%,rgba(0,0,0,.55))}
+html::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>")}
+/* type */
+h1,.sh,.mtitle,.mbtn,.pn,.rtitle,#callout{font-feature-settings:"kern";}
+.mbtn,.go{letter-spacing:.07em}
+.row .nm{letter-spacing:.045em;text-shadow:0 1px 0 rgba(0,0,0,.45)}
+.lab{font-weight:600;letter-spacing:.06em}
+.val,.price,.snum,.pnw,.cash,.mine b,.roomcode{font-variant-numeric:tabular-nums}
+.sh{text-shadow:0 2px 0 color-mix(in srgb,var(--accent) 30%,transparent),0 0 28px color-mix(in srgb,var(--accent) 14%,transparent)}
+.mtitle .w{background:linear-gradient(180deg,#FFFFFF 0%,var(--gold-hi) 46%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35))}
+:root:not([data-theme="dark"]) .mtitle .w{background:none;-webkit-text-fill-color:currentColor;filter:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mtitle .w{background:linear-gradient(180deg,#FFFFFF 0%,var(--gold-hi) 46%,var(--accent) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35))}}
+/* cards: layered surface, a lit top edge, a deeper shadow */
+.cbtn,.ghost,.opt,.ubtn,.game,.plist li,.lb li,.lvl,.fld,.roomcode{background-image:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 52%);border-color:color-mix(in srgb,var(--line) 78%,var(--accent) 6%)}
+.row{border-radius:18px;border-color:color-mix(in srgb,var(--line) 80%,var(--accent) 5%);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 46%),linear-gradient(180deg,var(--surface-2),var(--surface) 70%);
+  box-shadow:var(--lift),0 0 0 1px rgba(0,0,0,.25)}
+.row::before{width:4px;border-radius:0 4px 4px 0;box-shadow:0 0 14px -1px currentColor}
+.row.d-up::before{box-shadow:0 0 16px 0 color-mix(in srgb,var(--up) 70%,transparent)}
+.row.d-down::before{box-shadow:0 0 16px 0 color-mix(in srgb,var(--down) 65%,transparent)}
+.plist li,.lb li,.game,.cbtn,.ubtn,.lvl{border-radius:14px}
+.opt{border-radius:10px}
+.pbtn{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.em{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -2px 0 rgba(0,0,0,.14),0 3px 0 color-mix(in srgb,var(--c) 52%,#000),0 8px 12px -6px rgba(0,0,0,.6)}
+/* buttons: raised, with a firm pressed state */
+.btn{border-radius:12px;transition:transform .12s cubic-bezier(.3,1.5,.5,1),box-shadow .12s,filter .15s}
+.btn.buy{background:linear-gradient(180deg,color-mix(in srgb,var(--up) 26%,var(--up-bg)),var(--up-bg));color:var(--up);border-color:color-mix(in srgb,var(--up) 55%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 3px 0 color-mix(in srgb,var(--up) 38%,#000),0 8px 14px -8px color-mix(in srgb,var(--up) 60%,transparent)}
+.btn.sell{background:linear-gradient(180deg,color-mix(in srgb,var(--down) 24%,var(--down-bg)),var(--down-bg));color:var(--down);border-color:color-mix(in srgb,var(--down) 55%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 3px 0 color-mix(in srgb,var(--down) 36%,#000),0 8px 14px -8px color-mix(in srgb,var(--down) 55%,transparent)}
+.btn:active:not(:disabled){transform:translateY(3px) scale(.985);filter:brightness(.94);box-shadow:inset 0 2px 5px rgba(0,0,0,.35),0 0 0 transparent}
+.go,.mbtn.primary{background:linear-gradient(180deg,var(--gold-hi) 0%,var(--accent) 52%,var(--gold-lo) 100%);color:var(--on-accent);border-color:var(--accent-d);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -2px 0 rgba(0,0,0,.14),0 4px 0 var(--accent-d),0 14px 22px -10px color-mix(in srgb,var(--accent) 75%,transparent);
+  transition:transform .12s cubic-bezier(.3,1.5,.5,1),box-shadow .12s,filter .15s}
+.go:active:not(:disabled),.mbtn:active:not([aria-disabled="true"]){transform:translateY(4px) scale(.99);filter:brightness(.95);box-shadow:inset 0 2px 6px rgba(0,0,0,.3),0 0 0 var(--accent-d)}
+.mbtn:not(.primary){background-image:linear-gradient(180deg,var(--surface-2),var(--surface));border-color:color-mix(in srgb,var(--ink) 30%,var(--line));box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 0 var(--edge),0 14px 20px -12px rgba(0,0,0,.85)}
+.mbtn:not(.primary)::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(100deg,transparent 30%,color-mix(in srgb,var(--accent) 10%,transparent) 50%,transparent 70%);opacity:0;transition:opacity .25s}
+.mbtn:not(.primary):active::after{opacity:1}
+.sbtn{background-image:linear-gradient(180deg,var(--surface-2),var(--surface));box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 0 var(--edge),0 12px 18px -12px rgba(0,0,0,.85);border-color:color-mix(in srgb,var(--ink) 28%,var(--line))}
+.sbtn:active:not(:disabled){box-shadow:inset 0 2px 5px rgba(0,0,0,.4)}
+.cbtn{border-color:color-mix(in srgb,var(--ink) 26%,var(--line))}
+/* selected states share one language: gold edge, soft glow */
+.opt[aria-pressed="true"],.lvl[aria-pressed="true"],.seg button[aria-pressed="true"]{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 24%,var(--surface-2)),var(--surface));color:var(--ink);border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent),0 0 0 1px color-mix(in srgb,var(--accent) 45%,transparent),0 8px 18px -10px color-mix(in srgb,var(--accent) 70%,transparent)}
+.opt,.lvl,.seg button{transition:background-color .2s,box-shadow .2s,border-color .2s,transform .12s}
+.opt:active:not(:disabled),.lvl:active,.game:active:not(:disabled),.cbtn:active,.ubtn:active{transform:scale(.985)}
+.game:not(:disabled):active{border-color:var(--accent)}
+.ubtn:focus-within{border-color:var(--accent);box-shadow:var(--lift),0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.roomcode{border-color:color-mix(in srgb,var(--accent) 60%,var(--line));color:var(--gold-hi);text-shadow:0 0 18px color-mix(in srgb,var(--accent) 45%,transparent)}
+:root:not([data-theme="dark"]) .roomcode{color:var(--ink);text-shadow:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .roomcode{color:var(--gold-hi);text-shadow:0 0 18px color-mix(in srgb,var(--accent) 45%,transparent)}}
+.pst.ok{text-shadow:0 0 12px color-mix(in srgb,var(--up) 50%,transparent)}
+.tag{background-image:linear-gradient(180deg,rgba(255,255,255,.08),transparent)}
+/* status strip and dock: glass with a gold hairline */
+.status{box-shadow:0 1px 0 color-mix(in srgb,var(--accent) 22%,transparent),0 12px 22px -16px rgba(0,0,0,.9)}
+.dock{background:linear-gradient(180deg,color-mix(in srgb,var(--surface-2) 70%,transparent),var(--glass))}
+.pips span.done{background-image:linear-gradient(180deg,var(--gold-hi),var(--accent))}
+/* motion */
+@keyframes scr{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+.screen:not(#menu){animation:scr .36s cubic-bezier(.2,.8,.2,1)}
+.row.flash-up .price{text-shadow:0 0 16px color-mix(in srgb,var(--up) 70%,transparent)}
+.row.flash-down .price{text-shadow:0 0 16px color-mix(in srgb,var(--down) 70%,transparent)}
+.row .price{transition:color .25s,text-shadow .6s}
+.die.armed{filter:drop-shadow(0 0 14px color-mix(in srgb,var(--accent) 65%,transparent))}
+.die:active{transform:scale(.94)}
+.plist li{transition:opacity .3s,box-shadow .3s}
+@keyframes liin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.game{animation:liin .3s cubic-bezier(.2,.8,.2,1) both} /* the server list is only redrawn when it changes; lobby and board lists redraw every second, so they stay still */
+@media (prefers-reduced-motion:reduce){.game,.screen{animation:none!important}.btn,.go,.mbtn,.opt,.lvl{transition:none!important}}
 </style>
 <script>
 /* scale factor from the real screen: works for any phone shape. The keyboard shrinks the window but never the scale. */
@@ -2313,7 +2397,7 @@ function nextRoller(){
   for(let k=1;k<=n;k++){const i=(S.rollerIdx+k)%n,hp=H.players.find(p=>p.pid===S.players[i].pid);if(hp&&hp.connected){S.rollerIdx=i;return}}
 }
 function hostCheck(){
-  if(H.mode==='end'&&H.players.every(p=>p.here||!p.connected)){H.mode='lobby';H.S=null;H.board=null;if(H.sim)H.players=H.players.filter(p=>p.connected);if(H.sim){H.target=simTarget(H.players.length);H.t0=Date.now();H.minLobby=botMs(25000,50000);H.postLeaves=rint(3);H.leaves=0}}
+  if(H.mode==='end'&&H.players.every(p=>p.here||!p.connected)){H.mode='lobby';H.S=null;H.board=null;if(H.sim)H.players=H.players.filter(p=>p.connected);if(H.sim){H.target=simTarget(H.players.length);H.t0=Date.now();H.minLobby=botMs(10000,20000);H.postLeaves=rint(3);H.leaves=0}}
   if(H.mode!=='game')return;
   const S=H.S, live=H.players.filter(p=>p.connected);
   if(S.phase==='roll'&&!live.some(p=>p.pid===S.players[S.rollerIdx].pid))nextRoller();
@@ -2578,8 +2662,9 @@ function startJoin(){
 }
 addEventListener('offline',()=>{botNet=false;if(screen==='mpjoin'&&listReady)renderGames()});
 function renderGames(){
-  const l=pubList=realList.concat(botNet&&navigator.onLine!==false?brList(Date.now()):[]).sort((a,b)=>b.k-a.k||a.n.localeCompare(b.n,undefined,{sensitivity:'base'})||a.c.localeCompare(b.c)).slice(0,LIST_MAX); /* most players first, same count A to Z, 20 at most */
-  const html=l.map(g=>{const full=g.k>=g.m,off=g.g||full;
+  let busy=0; /* games already under way cannot be joined: show only a few, joinable lobbies come first */
+  const l=pubList=realList.concat(botNet&&navigator.onLine!==false?brList(Date.now()):[]).filter(g=>g.k<g.m).sort((a,b)=>(a.g?1:0)-(b.g?1:0)||b.k-a.k||a.n.localeCompare(b.n,undefined,{sensitivity:'base'})||a.c.localeCompare(b.c)).filter(g=>!(g.g&&g.bot&&++busy>3)).slice(0,LIST_MAX); /* no full rooms; lobbies first, most players first */
+  const html=l.map(g=>{const full=false,off=g.g;
     return '<button type="button" class="game" data-c="'+esc(g.c)+'"'+(off?' disabled':'')+'><span><b>'+esc(g.n)+'</b><small>'+g.k+'/'+g.m+' players'+(g.g?' · in progress':full?' · full':'')+(g.cr?' · custom rules':'')+'</small></span>'+(g.p?'<span class="tag">PASSWORD</span>':'')+'</button>'}).join('')||'<p class="muted">No public games right now. Create one, or join a private game with its code.</p>';
   if(html!==lastGames){lastGames=html;$('#gameList').innerHTML=html} /* only touch the list when it changed, so taps are never lost */
 }
@@ -2695,12 +2780,9 @@ $('#gameList').addEventListener('click',e=>{
   const b=e.target.closest('.game'); if(!b)return;
   const g=pubList.find(x=>x.c===b.dataset.c); if(!g)return;
   if(g.bot){
-    const now=botNet&&navigator.onLine!==false?brList(Date.now()).find(x=>x.c===g.c):null; /* the list on screen may be hours old: ask the simulation how the room looks now */
     $('#jErr').textContent='';
-    if(!now){const w=g.gen===undefined?'closed':brWhy(g,Date.now());return w==='full'?notice('Game is full','That game filled up while you were looking. Try another one.'):notice('Game closed','That game has already started or was closed.')}
-    if(now.g)return notice('Game in progress','That game has already started.');
-    if(now.k>=MAX_PLAYERS)return notice('Game is full','That game filled up while you were looking. Try another one.');
-    return startPractice(now);
+    if(g.g)return notice('Game in progress','That game has already started.'); /* a room listed as open is joined as listed, even if it changed a moment later */
+    return startPractice(g);
   }
   if(g.p&&!$('#jPw').value){$('#jErr').textContent='Enter the password first.';$('#jPw').focus();return}
   tryJoin(g.c,$('#jPw').value);
@@ -2961,8 +3043,8 @@ function botTick(){
   if(h.mode==='lobby'){if(h.sim)return simLobby(h);let ch=false;h.players.forEach(p=>{if(p.bot&&!p.ready){p.ready=true;ch=true}});if(ch)pushState();return}
   if(h.mode==='end'){if(h.sim)return simEnd(h);let ch=false;h.players.forEach(p=>{if(p.bot&&!p.here){p.here=true;p.ready=false;ch=true}});if(ch){hostCheck();pushState()}return}
   if(h.mode!=='game')return;
-  const readyWait=b=>settings.speed==='instant'?botMs(2000,5000):Math.max(2500,botMs(3000,8000)*(h.sim?b.pace/3:1)); /* think for 3-8 seconds after the last trade, never under 2.5 */
-  const S=h.S, T=(b,x,y)=>botMs(x,y)*(h.sim?b.pace*(Math.random()<.15?2:1)/2:1); /* practice-room bots vary by bot and sometimes stall; /2 = twice as fast as before */
+  const readyWait=b=>h.offline?40:settings.speed==='instant'?botMs(2000,5000):Math.max(2500,botMs(3000,8000)*(h.sim?b.pace/3:1)); /* think for 3-8 seconds after the last trade, never under 2.5 */
+  const S=h.S, T=(b,x,y)=>h.offline?15+Math.random()*35:botMs(x,y)*(h.sim?b.pace*(Math.random()<.15?2:1)/2:1); /* practice-room bots vary by bot and sometimes stall; /2 = twice as fast as before */
   if(S.phase==='trade'||S.phase==='final'){
     h.players.forEach(bot=>{
       if(!bot.bot||!bot.connected||bot.tr||bot.plan)return;
@@ -3085,7 +3167,7 @@ function genRoom(){
    real server: a host opens it with one to four players, people trickle in and now and then leave, the game starts once enough are in and ready
    (never in the first minute), it shows IN PROGRESS for the length of a match, then everyone returns to the lobby, some leave, and it starts again.
    A room you have played in stays on the list for an hour after you join it. */
-const BR_LANES=18, brCache=new Map(), brLanes=[], BR_START=[4,4,5,5,5,6,6,7,8];
+const BR_LANES=24, brCache=new Map(), brLanes=[], BR_START=[4,4,5,5,5,6,6,7,8];
 const simTarget=n=>Math.min(MAX_PLAYERS,Math.max(n+1,BR_START[rint(BR_START.length)])); /* players a room waits for before it starts */
 const brKeep=(()=>{try{const o=JSON.parse(localStorage.getItem('smsim-keep')||'{}'),n=Date.now();Object.keys(o).forEach(c=>{if(!(o[c]&&o[c].until>n))delete o[c]});return o}catch(e){return {}}})();
 function brKeepAdd(g){if(!g||!g.c||g.lane===undefined)return;brKeep[g.c]={lane:g.lane,gen:g.gen,until:Date.now()+36e5};try{localStorage.setItem('smsim-keep',JSON.stringify(brKeep))}catch(e){}}
@@ -3165,7 +3247,7 @@ function startPractice(g){
   nm.forEach((n,i)=>{if(mine.concat(nm.slice(0,i)).some(t=>nameClash(t,n)))nm[i]=freshName(mine.concat(nm,g.nm.slice(g.k)))}); /* no bot reads like you or like another bot */
   g=Object.assign({},g,{nm});
   const me={pid:g.k+1,name:settings.username,av:avOk(settings.avatar),conn:null,ready:false,here:true,connected:true,tr:false,seen:0};
-  H={name:g.n,pw:'',pub:false,sim:true,hostPid:1,target:simTarget(g.k),t0:Date.now(),minLobby:botMs(45000,90000),leaves:0,postLeaves:0,mode:'lobby',players:[me],total:g.total,cfg:g.cfg,S:null,board:null,seq:0,pending:null,nextPid:g.k+2};
+  H={name:g.n,pw:'',pub:false,sim:true,hostPid:1,target:simTarget(g.k),t0:Date.now(),minLobby:botMs(12000,25000),leaves:0,postLeaves:0,mode:'lobby',players:[me],total:g.total,cfg:g.cfg,S:null,board:null,seq:0,pending:null,nextPid:g.k+2};
   MP.pid=me.pid;
   H.players=Array.from({length:g.k},(_,i)=>simBot(H,i+1,g.nm[i],g.lv[i%4])).concat(me);
   Object.assign(MP,{active:true,isHost:true,pid:me.pid,conn:null,ended:false,code:g.c,roster:null});
@@ -3179,7 +3261,7 @@ function simLobby(h){
     if(post)h.postLeaves--;
     if(bs.length>1&&(post||Math.random()<.12)){const b=choice(bs);clearTimeout(b.plan);dropPlayer(b)}else simLobby(h);
   },post?botMs(4000,16000):botMs(14000,32000))}
-  h.players.forEach(b=>{if(b.bot&&!b.ready&&!b.plan)b.plan=setTimeout(()=>{b.plan=null;if(H===h&&h.mode==='lobby'&&h.players.indexOf(b)>=0){b.ready=true;pushState()}},b.pid===h.hostPid||Math.random()<.85?botMs(800,2500):botMs(8000,35000))}); /* a few bots take a while to press Ready */
+  h.players.forEach(b=>{if(b.bot&&!b.ready&&!b.plan)b.plan=setTimeout(()=>{b.plan=null;if(H===h&&h.mode==='lobby'&&h.players.indexOf(b)>=0){b.ready=true;pushState()}},b.pid===h.hostPid||Math.random()<.9?botMs(600,2000):botMs(4000,12000))}); /* a few bots take a while to press Ready */
   if(h.players.length<h.target&&!h.joinPlan)h.joinPlan=setTimeout(()=>{
     h.joinPlan=null;
     if(H!==h||h.mode!=='lobby'||h.players.length>=h.target)return;
@@ -3188,7 +3270,7 @@ function simLobby(h){
     const nm=freshName(h.players.map(p=>p.name).concat(settings.username));
     h.players.push(simBot(h,h.nextPid++,nm,BOT_LV[rint(4)]));pushState();
   },joinGap());
-  if(h.players.length>=h.target&&h.players.every(p=>p.here&&p.ready)&&!h.startPlan&&h.hostPid!==MP.pid)h.startPlan=setTimeout(()=>{h.startPlan=null;if(H===h&&h.mode==='lobby')hostStart()},Math.max(0,(h.t0||0)+(h.minLobby||0)-Date.now())+botMs(5000,13000)); /* a room never starts straight away: a minimum lobby time first, then a short ready-up */
+  if(h.players.length>=h.target&&h.players.every(p=>p.here&&p.ready)&&!h.startPlan&&h.hostPid!==MP.pid)h.startPlan=setTimeout(()=>{h.startPlan=null;if(H===h&&h.mode==='lobby'){hostStart();if(H===h&&h.mode==='lobby')simLobby(h)}},Math.max(0,(h.t0||0)+(h.minLobby||0)-Date.now())+botMs(2500,6000)); /* a room never starts straight away: a minimum lobby time first, then a short ready-up */
 }
 /* ---------- time away: a practice room keeps going while the app is minimised or the screen is off ----------
    Every second hostTimers calls simBeat. If the gap since the last beat is long, the app was suspended and the room "ran" meanwhile:
@@ -3198,6 +3280,7 @@ let lastBeat=Date.now();
 function simBeat(){
   const n=Date.now(), gap=n-lastBeat; lastBeat=n;
   if(gap>4000&&H&&H.sim&&MP.active){simCatchUp(gap);return true}
+  if(H&&H.sim&&MP.active&&H.mode==='lobby')simLobby(H); /* idempotent: re-plans anything that stalled */
   return false;
 }
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)simBeat()});
